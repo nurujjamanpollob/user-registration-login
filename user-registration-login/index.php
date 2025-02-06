@@ -3,7 +3,7 @@
 /*
  * Plugin Name:       User Registration & Login
  * Plugin URI:        https://webbylife.com
- * Description:       This plugin allows you to show wordpress user registration form, login form and user profile in the frontend of your website.
+ * Description:       This plugin allows you to show WordPress user registration form, login form and user profile in the frontend of your website.
  * Version:           1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
@@ -15,11 +15,31 @@
  * Text Domain:       user-registration-login
  */
 
+// require_once('recaptcha_verify.php');
+require_once 'setting_page.php';
+
+if (is_admin())
+    $user_login_register_settings = new User_Login_Register_Settings();
+
+/**
+ * Initialize and register the css and js files
+ */
+function register_plugin_assets() {
+    wp_register_style('registration-login-css', plugin_dir_url(__FILE__) . 'assets/css/user_registration_login_form_styles.css');
+    wp_register_script('registration-login-js', plugin_dir_url(__FILE__) . 'assets/js/user_registration_login.js');
+    wp_register_script('minimal-materialize-dialog', plugin_dir_url(__FILE__) . 'assets/js/dialog.js');
+    wp_enqueue_style('dm-sans', 'https://fonts.googleapis.com/css?family=DM Sans');
+    wp_enqueue_style('registration-login-css');
+    wp_enqueue_script('registration-login-js');
+    wp_enqueue_script('minimal-materialize-dialog');
+
+}
+
+add_action('wp_enqueue_scripts', 'register_plugin_assets');
 
 /**
  * Add shortcode for registration form
  */
-
 add_shortcode('register_form', 'registration_form');
 
 /**
@@ -59,41 +79,41 @@ function registration_fields()
 
     ?>
 
-    <form id="registration_form" class="form" action="" method="POST">
+    <form  id="registration_form" class="form" action="" method="POST">
 
-        <fieldset>
+        <fieldset style="border: 0">
 
-            <p>
-                <label for="username"><?php _e('Username') ?></label>
-                <input type="text" name="username" id="username" class="input"/>
-            </p>
+            <div class="input-container">
+                <input type="text" id="username" name="username" value="" materialize="true" aria-labelledby="label-fname"/>
+                <label class="label" for="username"><div class="text"><?php _e('Username') ?></div></label>
+            </div>
 
-            <p>
-                <label for="email"><?php _e('Email') ?></label>
-                <input type="text" name="email" id="email" class="input"/>
-            </p>
+            <div class="input-container">
+                <input type="text" id="email" name="email" value="" materialize="true" aria-labelledby="label-fname"/>
+                <label class="label" for="email"><div class="text"><?php _e('Email') ?></div></label>
+            </div>
 
-            <p>
-                <label for="password"><?php _e('Password') ?></label>
-                <input type="password" name="password" id="password" class="input"/>
-            </p>
+            <div class="input-container">
+                <input type="password" id="password" name="password" value="" materialize="true" aria-labelledby="label-fname"/>
+                <label class="label" for="password"><div class="text"><?php _e('Password') ?></div></label>
+            </div>
 
-            <p>
-                <label for="password2"><?php _e('Confirm Password') ?></label>
-                <input type="password" name="password2" id="password2" class="input"/>
-            </p>
+            <div class="input-container">
+                <input type="password" id="password2" name="password2" value="" materialize="true" aria-labelledby="label-fname"/>
+                <label class="label" for="password2"><div class="text"><?php _e('Confirm Password') ?></div></label>
+            </div>
 
             <p>
                 <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('registration-csrf'); ?>"/>
 
-                <input type="submit" name="submit" value="<?php _e('Register Your Account'); ?>"/>
+                <button type="submit" name="submit" class="submit-button"><?php _e('Create Account'); ?></button>
+
             </p>
 
 
         </fieldset>
 
     </form>
-
 
     <?php
     return ob_get_clean();
@@ -199,13 +219,24 @@ function registration_fields()
         {
 
             if ($codes = registration_login_errors()->get_error_codes()) {
-                echo '<div class="error_div">';
+               // echo '<div class="error_div">';
+
+                // create a string of error messages
+                $error_messages = '<div style="display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: center;" class="error_div">';
+
+                // add image to error message
+                $error_messages .= '<img src="' . plugin_dir_url(__FILE__) . 'assets/img/error_404.webp" style="width: 100%; height: 40%; margin-bottom: 20px;"/>';
                 // Loop error codes and display errors
                 foreach ($codes as $code) {
-                    $message = registration_login_errors()->get_error_message($code);
-                    echo '<span class="error"><strong>' . __('Error') . '</strong>: ' . $message . '</span><br/>';
+                   $message = registration_login_errors()->get_error_message($code);
+                   // echo '<span class="error"><strong>' . __('Error') . '</strong>: ' . $message . '</span><br/>';
+                    $error_messages .= '<span class="error"><strong>' . __('Error') . '</strong>: ' . $message . '</span>';
                 }
                 echo '</div>';
+                $error_messages .= '</div>';
+
+                echo "<script>createAndShowDialog('', '$error_messages', null, [{text: 'Cancel', onClick: () => {closeDialog();}}]);</script>";
+
             }
 
         }
