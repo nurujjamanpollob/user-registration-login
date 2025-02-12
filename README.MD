@@ -5,8 +5,7 @@ The plugin is also fully responsive and works on all devices.
 If your website needs a simple and easy to use user registration and login form, then this plugin is the perfect solution for you.
 
 How to get started:
-1. Download the source code
-2. zip user-registration-login folder
+1. Download the plugin zip file 'user-registration-login.zip'
 3. Go to your WordPress admin panel and upload the zip file
 
 that's it! You can now start using the plugin on your website.
