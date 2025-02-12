@@ -15,11 +15,34 @@
  * Text Domain:       user-registration-login
  */
 
-// require_once('recaptcha_verify.php');
-require_once 'setting_page.php';
+include (plugin_dir_path(__FILE__) . 'plugin_options.php');
 
 if (is_admin())
-    $user_login_register_settings = new User_Login_Register_Settings();
+{
+    include_once (plugin_dir_path(__FILE__) . '/pages/setting_page.php');
+    include_once (plugin_dir_path(__FILE__) . '/pages/show_shortcodes.php');
+}
+
+// listen on plugin activation
+register_activation_hook(__FILE__, 'user_registration_login_on_plugin_activated');
+
+// method that runs on plugin activation
+function user_registration_login_on_plugin_activated()
+{
+    // add options to the database
+    add_option(RECAPTCHA_SITE_KEY_OPTION_NAME, RECAPTCHA_SITE_KEY, '', true);
+    add_option(RECAPTCHA_SECRET_KEY_OPTION_NAME, RECAPTCHA_SECRET_KEY, '', true);
+    // add activation redirect and captcha check options
+    add_option(REDIRECT_AFTER_ACTIVATION_OPTION_NAME, true, '', false);
+    add_option(RECAPTCHA_TESTED_OPTION_NAME, false, '', false);
+
+    // set transient to redirect to settings page
+    set_transient('registration_login_activation_redirect', true, 30);
+
+
+}
+
+
 
 /**
  * Initialize and register the css and js files
@@ -240,3 +263,47 @@ function registration_fields()
             }
 
         }
+
+        // redirect to settings page after activation
+        function registration_login_redirect_to_settings_page()
+        {
+
+
+
+            if (!get_transient('registration_login_activation_redirect')) {
+                return;
+            }
+
+            delete_transient('registration_login_activation_redirect');
+            if (isset($_GET['activate-multi'])) {
+                return;
+            }
+            wp_safe_redirect(admin_url('admin.php?page=' . DASHBOARD_PAGE_SLUG));
+        }
+
+
+        //add action when admin_init
+        add_action('admin_init', 'registration_login_redirect_to_settings_page');
+
+
+    // add settings page link to plugin page
+    function registration_login_settings_link($links)
+    {
+        $settings_link = '<a href="admin.php?page=' . REGISTRATION_LOGIN_MENU_SETTINGS_SLUG . '">' . __('Settings') . '</a>';
+        array_unshift($links, $settings_link);
+        return $links;
+    }
+
+    $plugin = plugin_basename(__FILE__);
+    add_filter("plugin_action_links_$plugin", 'registration_login_settings_link');
+
+    // add shortcodes page link to plugin page
+    function registration_login_shortcodes_link($links)
+    {
+        $shortcodes_link = '<a href="admin.php?page=' . SHORTCODES_PAGE_SLUG . '">' . __('Shortcodes') . '</a>';
+        array_unshift($links, $shortcodes_link);
+        return $links;
+    }
+
+    add_filter("plugin_action_links_$plugin", 'registration_login_shortcodes_link');
+
