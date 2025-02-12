@@ -2,16 +2,16 @@
 
 /*
  * Plugin Name:       User Registration & Login
- * Plugin URI:        https://webbylife.com
+ * Plugin URI:        https://eazewebit.com
  * Description:       This plugin allows you to show WordPress user registration form, login form and user profile in the frontend of your website.
  * Version:           1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
- * Author:            WebbyLife Software
- * Author URI:        https://webbylife.com
+ * Author:            Eaze Web IT
+ * Author URI:        https://eazewebit.com
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Update URI:        https://example.com/my-plugin/
+ * Update URI:        https://eazewebit.com/user-registration-login-wordpress-plugin/
  * Text Domain:       user-registration-login
  */
 
