@@ -6,6 +6,8 @@ If your website needs a simple and easy to use user registration and login form,
 
 This plugin requires google reCaptcha to be enabled on your website. You can get the reCaptcha keys from the Google reCaptcha website.
 
+Embed login and registration forms in any posts and pages using shortcodes.
+
 How to get started:
 1. Download the plugin zip file 'user-registration-login.zip'
 2. Go to your WordPress admin panel and upload the zip file
