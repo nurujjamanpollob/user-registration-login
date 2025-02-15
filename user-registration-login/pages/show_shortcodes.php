@@ -17,6 +17,10 @@ function showShortCodes()
                 <th scope="row">Registration Form</th>
                 <td><input type="text" value="[register_form]" readonly /></td>
             </tr>
+            <tr valign="top">
+                <th scope="row">Login Form</th>
+                <td><input type="text" value="[login_form]" readonly /></td>
+            </tr>
         </table>
     </div>
     <?php
