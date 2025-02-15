@@ -16,15 +16,20 @@ That's it! You can now start using the plugin on your website.
 how to embed forms in your website:
 1. Install the plugin
 2. Create a new page or post
-3. Add the shortcode [register_form] to the page or post
+3. Add the shortcode [register_form] or [login_form] to the page or post
 4. Publish the page or post
 5. The form will now be displayed on your website
 
 Customization:
-The plugin right now offers a few customizable options. such as recaptcha keys, new user default roles. More options will be added in the future.
+The plugin right now offers a few customizable options. 
+such as recaptcha keys, new user default role, and user creation email sent to the site admin. 
+More options will be added in the future.
 
 Future updates:
 - Add more customization options
 - Add more form styles
-- add login shortcode
 - visual form builder
+
+If you have any questions or need help with the plugin,
+please contact us at <a href="https://eazewebit.com">eazewebit.com</a>. 
+This plugin is optimized for the best performance and security, leaves minimal footprint on your website.
