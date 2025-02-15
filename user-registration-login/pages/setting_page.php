@@ -23,6 +23,9 @@ function registration_login_menu()
     //add sub menu page
     add_submenu_page(DASHBOARD_PAGE_SLUG, 'Shortcodes', 'Shortcodes', 'manage_options', SHORTCODES_PAGE_SLUG, 'showShortCodes');
 
+    // add sub menu page
+    add_submenu_page(DASHBOARD_PAGE_SLUG, 'Recaptcha Test', 'Recaptcha Test', 'manage_options', RECAPTCHA_TEST_PAGE_SLUG, 'recaptcha_test');
+
     //call register settings function
     add_action( 'admin_init', 'register_user_login_settings' );
 }
@@ -31,6 +34,7 @@ function register_user_login_settings() {
     //register our settings
     register_setting( 'user-login-settings-group', 'recaptcha_site_key' );
     register_setting( 'user-login-settings-group', 'recaptcha_secret_key' );
+    register_setting( 'user-login-settings-group', USER_ROLE_OPTION_NAME);
 }
 
 
@@ -44,7 +48,6 @@ function registration_login_page()
             <?php do_settings_sections( 'user-login-settings-group' ); ?>
 
 
-
             <table class="form-table">
 
                 <tr valign="top">
@@ -55,6 +58,23 @@ function registration_login_page()
                     <th scope="row">Recaptcha Secret Key</th>
                     <td><input type="text" name="recaptcha_secret_key" value="<?php echo get_option(RECAPTCHA_SECRET_KEY_OPTION_NAME); ?>" /></td>
                 </tr>
+
+                <tr valign="top">
+                    <th scope="row">User Role</th>
+                    <td>
+                        <select name="<?php echo USER_ROLE_OPTION_NAME; ?>">
+                            <?php
+                            $roles = get_editable_roles();
+                            foreach ($roles as $role => $roleDetails) {
+                                ?>
+                                <option value="<?php echo $role; ?>" <?php echo get_option(USER_ROLE_OPTION_NAME) === $role ? 'selected' : ''; ?>><?php echo $roleDetails['name']; ?></option>
+                                <?php
+                            }
+                            ?>
+                        </select>
+                    </td>
+                </tr>
+
             </table>
             <?php submit_button(); ?>
         </form>

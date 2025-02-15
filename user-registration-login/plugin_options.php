@@ -22,3 +22,9 @@ const SHORTCODES_PAGE_SLUG = 'user-registration-login-shortcodes';
 
 // dashboard page slug
 const DASHBOARD_PAGE_SLUG = 'user-registration-login-dashboard';
+
+// recaptcha test page slug
+const RECAPTCHA_TEST_PAGE_SLUG = 'user-registration-login-recaptcha-test';
+
+// add user role option name
+const USER_ROLE_OPTION_NAME = 'user_registration_login_new_created_user_role';

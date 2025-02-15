@@ -15,16 +15,21 @@
  * Text Domain:       user-registration-login
  */
 
-include (plugin_dir_path(__FILE__) . 'plugin_options.php');
+include(plugin_dir_path(__FILE__) . 'plugin_options.php');
 
-if (is_admin())
-{
-    include_once (plugin_dir_path(__FILE__) . '/pages/setting_page.php');
-    include_once (plugin_dir_path(__FILE__) . '/pages/show_shortcodes.php');
+// include the recaptcha verifier
+require_once plugin_dir_path(__FILE__) . 'verifier/recaptcha_verify.php';
+
+if (is_admin()) {
+    include_once(plugin_dir_path(__FILE__) . '/pages/setting_page.php');
+    include_once(plugin_dir_path(__FILE__) . '/pages/show_shortcodes.php');
+    include_once(plugin_dir_path(__FILE__) . '/pages/recaptcha_test.php');
+
 }
 
 // listen on plugin activation
 register_activation_hook(__FILE__, 'user_registration_login_on_plugin_activated');
+
 
 // method that runs on plugin activation
 function user_registration_login_on_plugin_activated()
@@ -32,9 +37,7 @@ function user_registration_login_on_plugin_activated()
     // add options to the database
     add_option(RECAPTCHA_SITE_KEY_OPTION_NAME, RECAPTCHA_SITE_KEY, '', true);
     add_option(RECAPTCHA_SECRET_KEY_OPTION_NAME, RECAPTCHA_SECRET_KEY, '', true);
-    // add activation redirect and captcha check options
-    add_option(REDIRECT_AFTER_ACTIVATION_OPTION_NAME, true, '', false);
-    add_option(RECAPTCHA_TESTED_OPTION_NAME, false, '', false);
+    add_option(USER_ROLE_OPTION_NAME, 'subscriber');
 
     // set transient to redirect to settings page
     set_transient('registration_login_activation_redirect', true, 30);
@@ -43,18 +46,20 @@ function user_registration_login_on_plugin_activated()
 }
 
 
-
 /**
  * Initialize and register the css and js files
  */
-function register_plugin_assets() {
+function register_plugin_assets()
+{
     wp_register_style('registration-login-css', plugin_dir_url(__FILE__) . 'assets/css/user_registration_login_form_styles.css');
     wp_register_script('registration-login-js', plugin_dir_url(__FILE__) . 'assets/js/user_registration_login.js');
     wp_register_script('minimal-materialize-dialog', plugin_dir_url(__FILE__) . 'assets/js/dialog.js');
+    wp_register_script("recaptcha", "https://www.google.com/recaptcha/api.js?explicit&hl=" . get_locale());
     wp_enqueue_style('dm-sans', 'https://fonts.googleapis.com/css?family=DM Sans');
     wp_enqueue_style('registration-login-css');
     wp_enqueue_script('registration-login-js');
     wp_enqueue_script('minimal-materialize-dialog');
+    wp_enqueue_script("recaptcha");
 
 }
 
@@ -102,28 +107,27 @@ function registration_fields()
 
     ?>
 
-    <form  id="registration_form" class="form" action="" method="POST">
+    <form id="registration_form" class="form" action="" method="POST">
 
         <fieldset style="border: 0">
 
             <div class="input-container">
-                <input type="text" id="username" name="username" value="" materialize="true" aria-labelledby="label-fname"/>
-                <label class="label" for="username"><div class="text"><?php _e('Username') ?></div></label>
+                <input type="text" id="username" name="username" value="" materialize="true"
+                       aria-labelledby="label-fname"/>
+                <label class="label" for="username">
+                    <div class="text"><?php _e('Username') ?></div>
+                </label>
             </div>
 
             <div class="input-container">
                 <input type="text" id="email" name="email" value="" materialize="true" aria-labelledby="label-fname"/>
-                <label class="label" for="email"><div class="text"><?php _e('Email') ?></div></label>
+                <label class="label" for="email">
+                    <div class="text"><?php _e('Email') ?></div>
+                </label>
             </div>
 
             <div class="input-container">
-                <input type="password" id="password" name="password" value="" materialize="true" aria-labelledby="label-fname"/>
-                <label class="label" for="password"><div class="text"><?php _e('Password') ?></div></label>
-            </div>
-
-            <div class="input-container">
-                <input type="password" id="password2" name="password2" value="" materialize="true" aria-labelledby="label-fname"/>
-                <label class="label" for="password2"><div class="text"><?php _e('Confirm Password') ?></div></label>
+                <div class="g-recaptcha" data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
             </div>
 
             <p>
@@ -144,166 +148,159 @@ function registration_fields()
 }
 
 // handle registration form submission
-    function add_new_user()
-    {
-        if (isset($_POST['username']) && isset($_POST['email']) && isset($_POST['password']) && isset($_POST['password2'])) {
+function add_new_user()
+{
+    if (isset($_POST['username']) && isset($_POST['email']) && isset($_POST['_csrf']) && isset($_POST['g-recaptcha-response'])) {
 
-            // verify nonce
-            if (!wp_verify_nonce($_POST['_csrf'], 'registration-csrf')) {
-                die('Security check failed');
-            }
-
-            // sanitize user input
-            $username = sanitize_user($_POST['username']);
-            $email = sanitize_email($_POST['email']);
-            $password = esc_attr($_POST['password']);
-            $password2 = esc_attr($_POST['password2']);
-
-            // This is required to create a user
-            require_once(ABSPATH . WPINC . '/registration.php');
-
-            // validate user input
-            if (username_exists($username)) {
-
-                registration_login_errors()->add('username_exists', 'Username already exists');
-            }
-
-            if(!validate_username($username)){
-                registration_login_errors()->add('username_invalid', 'Invalid username');
-            }
-
-            // if username is null or empty
-            if (empty($username)) {
-                registration_login_errors()->add('username_empty', 'Please enter a username');
-            }
-
-            if (!is_email($email)) {
-                registration_login_errors()->add('email_invalid', 'Invalid email');
-            }
-
-            // is email exists
-            if (email_exists($email)) {
-                registration_login_errors()->add('email_exists', 'Email already exists. Cannot register again.');
-            }
-
-            // if user pass empty of null, or less than 6 characters
-            if (empty($password) || strlen($password) < 6) {
-                registration_login_errors()->add('password_empty', 'Password must be at least 6 characters long');
-            }
-
-            if ($password != $password2) {
-                registration_login_errors()->add('password_mismatch', 'Passwords do not match');
-            }
-
-            $errors = registration_login_errors()->get_error_messages();
-
-            // if no errors, then create user
-            if (empty($errors)) {
-
-                // insert user
-                $default_new_user = array(
-                    'user_login' => $username,
-                    'user_pass' => wp_hash_password($password),
-                    'user_email' => $email,
-                    'user_registered' => date('Y-m-d H:i:s'),
-                    'role' => 'subscriber'
-                );
-
-                $user_id = wp_insert_user($default_new_user);
-
-                if ($user_id && !is_wp_error($user_id)) {
-                    // send email to user
-                    wp_new_user_notification($user_id, null, 'user');
-                    echo 'User created successfully';
-
-                    exit;
-                } else {
-                    echo 'Error creating user';
-                }
-
-            }
-
+        // verify nonce
+        if (!wp_verify_nonce($_POST['_csrf'], 'registration-csrf')) {
+            die('Security check failed');
         }
-    }
 
-    // add action hook
-    add_action('init', 'add_new_user');
+        // verify recaptcha
+        $recaptcha_response = $_POST['g-recaptcha-response'];
+        $recaptcha_verify = new RecaptchaVerify();
+        $is_test_successful = $recaptcha_verify->verifyResponse($recaptcha_response);
 
-    // function for tracking error messages
-    function registration_login_errors()
-    {
-        static  $user_reg_login_errors; // global variable
+        if (!$is_test_successful) {
+            registration_login_errors()->add('recaptcha_failed', 'Recaptcha verification failed');
+        }
 
-        return $user_reg_login_errors ?? ($user_reg_login_errors = new WP_Error(null, null, null));
-    }
 
-    // display error messages
-        function register_messages()
-        {
+        // sanitize user input
+        $username = sanitize_user($_POST['username']);
+        $email = sanitize_email($_POST['email']);
+        $password = wp_generate_password();
 
-            if ($codes = registration_login_errors()->get_error_codes()) {
-               // echo '<div class="error_div">';
+        // This is required to create a user
+        require_once(ABSPATH . WPINC . '/registration.php');
 
-                // create a string of error messages
-                $error_messages = '<div style="display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: center;" class="error_div">';
+        // validate user input
+        if (username_exists($username)) {
 
-                // add image to error message
-                $error_messages .= '<img src="' . plugin_dir_url(__FILE__) . 'assets/img/error_404.webp" style="width: 100%; height: 40%; margin-bottom: 20px;"/>';
-                // Loop error codes and display errors
-                foreach ($codes as $code) {
-                   $message = registration_login_errors()->get_error_message($code);
-                   // echo '<span class="error"><strong>' . __('Error') . '</strong>: ' . $message . '</span><br/>';
-                    $error_messages .= '<span class="error"><strong>' . __('Error') . '</strong>: ' . $message . '</span>';
-                }
-                echo '</div>';
-                $error_messages .= '</div>';
+            registration_login_errors()->add('username_exists', 'Username already exists');
+        }
 
-                echo "<script>createAndShowDialog('', '$error_messages', null, [{text: 'Cancel', onClick: () => {closeDialog();}}]);</script>";
+        if (!validate_username($username)) {
+            registration_login_errors()->add('username_invalid', 'Invalid username');
+        }
 
+        if (!is_email($email)) {
+            registration_login_errors()->add('email_invalid', 'Invalid email');
+        }
+
+        // is email exists
+        if (email_exists($email)) {
+            registration_login_errors()->add('email_exists', 'Email already exists. Cannot register again.');
+        }
+
+        $errors = registration_login_errors()->get_error_messages();
+
+        // if no errors, then create user
+        if (empty($errors)) {
+
+            // insert user
+            $default_new_user = array(
+                'user_login' => $username,
+                'user_pass' => wp_hash_password($password),
+                'user_email' => $email,
+                'user_registered' => date('Y-m-d H:i:s'),
+                'role' => get_option(USER_ROLE_OPTION_NAME)
+            );
+
+            $user_id = wp_insert_user($default_new_user);
+
+            if ($user_id && !is_wp_error($user_id)) {
+                // send email to user
+                wp_new_user_notification($user_id, null, 'user');
+                echo 'User created successfully. Please check your email to activate your account.';
+                exit;
+            } else {
+                echo 'Error creating user';
             }
 
         }
 
-        // redirect to settings page after activation
-        function registration_login_redirect_to_settings_page()
-        {
+    }
+}
 
+// add action hook
+add_action('init', 'add_new_user');
 
+// function for tracking error messages
+function registration_login_errors()
+{
+    static $user_reg_login_errors; // global variable
 
-            if (!get_transient('registration_login_activation_redirect')) {
-                return;
-            }
+    return $user_reg_login_errors ?? ($user_reg_login_errors = new WP_Error(null, null, null));
+}
 
-            delete_transient('registration_login_activation_redirect');
-            if (isset($_GET['activate-multi'])) {
-                return;
-            }
-            wp_safe_redirect(admin_url('admin.php?page=' . DASHBOARD_PAGE_SLUG));
+// display error messages
+function register_messages()
+{
+
+    if ($codes = registration_login_errors()->get_error_codes()) {
+        // echo '<div class="error_div">';
+
+        // create a string of error messages
+        $error_messages = '<div style="display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: center;" class="error_div">';
+
+        // add image to error message
+        $error_messages .= '<img src="' . plugin_dir_url(__FILE__) . 'assets/img/error_404.webp" style="width: 100%; height: 40%; margin-bottom: 20px;"/>';
+        // Loop error codes and display errors
+        foreach ($codes as $code) {
+            $message = registration_login_errors()->get_error_message($code);
+            // echo '<span class="error"><strong>' . __('Error') . '</strong>: ' . $message . '</span><br/>';
+            $error_messages .= '<span class="error"><strong>' . __('Error') . '</strong>: ' . $message . '</span>';
         }
+        echo '</div>';
+        $error_messages .= '</div>';
 
+        echo "<script>createAndShowDialog('', '$error_messages', null, [{text: 'Cancel', onClick: () => {closeDialog();}}]);</script>";
 
-        //add action when admin_init
-        add_action('admin_init', 'registration_login_redirect_to_settings_page');
-
-
-    // add settings page link to plugin page
-    function registration_login_settings_link($links)
-    {
-        $settings_link = '<a href="admin.php?page=' . REGISTRATION_LOGIN_MENU_SETTINGS_SLUG . '">' . __('Settings') . '</a>';
-        array_unshift($links, $settings_link);
-        return $links;
     }
 
-    $plugin = plugin_basename(__FILE__);
-    add_filter("plugin_action_links_$plugin", 'registration_login_settings_link');
+}
 
-    // add shortcodes page link to plugin page
-    function registration_login_shortcodes_link($links)
-    {
-        $shortcodes_link = '<a href="admin.php?page=' . SHORTCODES_PAGE_SLUG . '">' . __('Shortcodes') . '</a>';
-        array_unshift($links, $shortcodes_link);
-        return $links;
+// redirect to settings page after activation
+function registration_login_redirect_to_settings_page()
+{
+
+
+    if (!get_transient('registration_login_activation_redirect')) {
+        return;
     }
 
-    add_filter("plugin_action_links_$plugin", 'registration_login_shortcodes_link');
+    delete_transient('registration_login_activation_redirect');
+    if (isset($_GET['activate-multi'])) {
+        return;
+    }
+    wp_safe_redirect(admin_url('admin.php?page=' . DASHBOARD_PAGE_SLUG));
+}
+
+
+//add action when admin_init
+add_action('admin_init', 'registration_login_redirect_to_settings_page');
+
+
+// add settings page link to plugin page
+function registration_login_settings_link($links)
+{
+    $settings_link = '<a href="admin.php?page=' . REGISTRATION_LOGIN_MENU_SETTINGS_SLUG . '">' . __('Settings') . '</a>';
+    array_unshift($links, $settings_link);
+    return $links;
+}
+
+$plugin = plugin_basename(__FILE__);
+add_filter("plugin_action_links_$plugin", 'registration_login_settings_link');
+
+// add shortcodes page link to plugin page
+function registration_login_shortcodes_link($links)
+{
+    $shortcodes_link = '<a href="admin.php?page=' . SHORTCODES_PAGE_SLUG . '">' . __('Shortcodes') . '</a>';
+    array_unshift($links, $shortcodes_link);
+    return $links;
+}
+
+add_filter("plugin_action_links_$plugin", 'registration_login_shortcodes_link');
 
