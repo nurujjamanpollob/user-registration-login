@@ -35,6 +35,7 @@ function register_user_login_settings() {
     register_setting( 'user-login-settings-group', 'recaptcha_site_key' );
     register_setting( 'user-login-settings-group', 'recaptcha_secret_key' );
     register_setting( 'user-login-settings-group', USER_ROLE_OPTION_NAME);
+    register_setting( 'user-login-settings-group', SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME);
 }
 
 
@@ -72,6 +73,13 @@ function registration_login_page()
                             }
                             ?>
                         </select>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row">Send Registration Email to Admin</th>
+                    <td>
+                        <input type="checkbox" name="<?php echo SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME; ?>" value="1" <?php echo get_option(SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME) === '1' ? 'checked' : ''; ?>>
                     </td>
                 </tr>
 

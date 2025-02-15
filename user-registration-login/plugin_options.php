@@ -28,3 +28,6 @@ const RECAPTCHA_TEST_PAGE_SLUG = 'user-registration-login-recaptcha-test';
 
 // add user role option name
 const USER_ROLE_OPTION_NAME = 'user_registration_login_new_created_user_role';
+
+// send registration email to admin option name
+const SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME = 'send_registration_email_to_admin';

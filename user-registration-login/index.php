@@ -38,6 +38,7 @@ function user_registration_login_on_plugin_activated()
     add_option(RECAPTCHA_SITE_KEY_OPTION_NAME, RECAPTCHA_SITE_KEY, '', true);
     add_option(RECAPTCHA_SECRET_KEY_OPTION_NAME, RECAPTCHA_SECRET_KEY, '', true);
     add_option(USER_ROLE_OPTION_NAME, 'subscriber');
+    add_option(SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME, false);
 
     // set transient to redirect to settings page
     set_transient('registration_login_activation_redirect', true, 30);
@@ -66,7 +67,7 @@ function register_plugin_assets()
 add_action('wp_enqueue_scripts', 'register_plugin_assets');
 
 /**
- * Add shortcode for registration form
+ * Add shortcode for a registration form
  */
 add_shortcode('register_form', 'registration_form');
 
@@ -76,7 +77,7 @@ add_shortcode('register_form', 'registration_form');
 function registration_form()
 {
 
-    // if user not logged in
+    // if user isn't logged in
     if (!is_user_logged_in()) {
 
         // if registration is enabled
@@ -212,7 +213,15 @@ function add_new_user()
 
             if ($user_id && !is_wp_error($user_id)) {
                 // send email to user
-                wp_new_user_notification($user_id, null, 'user');
+                //wp_new_user_notification($user_id, null, 'user');
+
+                // send email to admin and user if the option is enabled
+                if (get_option(SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME)) {
+                    wp_new_user_notification($user_id, null, 'both');
+                } else {
+                    wp_new_user_notification($user_id, null, 'user');
+                }
+
                 echo 'User created successfully. Please check your email to activate your account.';
                 exit;
             } else {
