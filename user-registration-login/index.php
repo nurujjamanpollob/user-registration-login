@@ -56,16 +56,14 @@ function register_plugin_assets()
 
     if (get_option(LOAD_PLUGIN_CSS_JS_OPTION_NAME)) {
         wp_register_style('registration-login-css', plugin_dir_url(__FILE__) . 'assets/css/user_registration_login_form_styles.css');
-        wp_register_script('registration-login-js', plugin_dir_url(__FILE__) . 'assets/js/user_registration_login.js');
-        wp_register_script('minimal-materialize-dialog', plugin_dir_url(__FILE__) . 'assets/js/dialog.js');
         wp_enqueue_style('registration-login-css');
-        wp_enqueue_script('registration-login-js');
-        wp_enqueue_script('minimal-materialize-dialog');
         wp_enqueue_style('dm-sans', 'https://fonts.googleapis.com/css?family=DM Sans');
     }
 
+    wp_register_script('minimal-materialize-dialog', plugin_dir_url(__FILE__) . 'assets/js/dialog.js');
     wp_register_script("recaptcha", "https://www.google.com/recaptcha/api.js?explicit&hl=" . get_locale());
     wp_enqueue_script("recaptcha");
+    wp_enqueue_script('minimal-materialize-dialog');
 
 }
 
@@ -112,6 +110,7 @@ function registration_fields()
 
 
     ?>
+
 
     <form id="registration_form" class="form" action="" method="POST">
 
@@ -256,7 +255,6 @@ function register_messages()
 {
 
     if ($codes = registration_login_errors()->get_error_codes()) {
-        // echo '<div class="error_div">';
 
         // create a string of error messages
         $error_messages = '<div style="display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: center;" class="error_div">';

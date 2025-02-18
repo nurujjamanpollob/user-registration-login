@@ -87,7 +87,7 @@ function registration_login_page()
                 </tr>
 
                 <tr valign="top">
-                    <th scope="row">Load Plugin CSS and JS</th>
+                    <th scope="row">Load Plugin CSS and JS For Form Styles</th>
                     <td>
                         <input type="checkbox" name="<?php echo LOAD_PLUGIN_CSS_JS_OPTION_NAME; ?>" value="1" <?php echo get_option(LOAD_PLUGIN_CSS_JS_OPTION_NAME) === '1' ? 'checked' : ''; ?>>
                     </td>
