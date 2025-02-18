@@ -31,3 +31,6 @@ const USER_ROLE_OPTION_NAME = 'user_registration_login_new_created_user_role';
 
 // send registration email to admin option name
 const SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME = 'send_registration_email_to_admin';
+
+// Load Plugin CSS and js options name
+const LOAD_PLUGIN_CSS_JS_OPTION_NAME = 'load_user-registration_and_login_plugin_css_js';
