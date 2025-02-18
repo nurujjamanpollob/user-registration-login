@@ -39,6 +39,7 @@ function user_registration_login_on_plugin_activated()
     add_option(RECAPTCHA_SECRET_KEY_OPTION_NAME, RECAPTCHA_SECRET_KEY, '', true);
     add_option(USER_ROLE_OPTION_NAME, 'subscriber');
     add_option(SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME, false);
+    add_option(LOAD_PLUGIN_CSS_JS_OPTION_NAME, true, '', true);
 
     // set transient to redirect to settings page
     set_transient('registration_login_activation_redirect', true, 30);
@@ -48,18 +49,22 @@ function user_registration_login_on_plugin_activated()
 
 
 /**
- * Initialize and register the css and js files
+ * Initialize and register the CSS and js files
  */
 function register_plugin_assets()
 {
-    wp_register_style('registration-login-css', plugin_dir_url(__FILE__) . 'assets/css/user_registration_login_form_styles.css');
-    wp_register_script('registration-login-js', plugin_dir_url(__FILE__) . 'assets/js/user_registration_login.js');
-    wp_register_script('minimal-materialize-dialog', plugin_dir_url(__FILE__) . 'assets/js/dialog.js');
+
+    if (get_option(LOAD_PLUGIN_CSS_JS_OPTION_NAME)) {
+        wp_register_style('registration-login-css', plugin_dir_url(__FILE__) . 'assets/css/user_registration_login_form_styles.css');
+        wp_register_script('registration-login-js', plugin_dir_url(__FILE__) . 'assets/js/user_registration_login.js');
+        wp_register_script('minimal-materialize-dialog', plugin_dir_url(__FILE__) . 'assets/js/dialog.js');
+        wp_enqueue_style('registration-login-css');
+        wp_enqueue_script('registration-login-js');
+        wp_enqueue_script('minimal-materialize-dialog');
+        wp_enqueue_style('dm-sans', 'https://fonts.googleapis.com/css?family=DM Sans');
+    }
+
     wp_register_script("recaptcha", "https://www.google.com/recaptcha/api.js?explicit&hl=" . get_locale());
-    wp_enqueue_style('dm-sans', 'https://fonts.googleapis.com/css?family=DM Sans');
-    wp_enqueue_style('registration-login-css');
-    wp_enqueue_script('registration-login-js');
-    wp_enqueue_script('minimal-materialize-dialog');
     wp_enqueue_script("recaptcha");
 
 }
@@ -222,7 +227,8 @@ function add_new_user()
                     wp_new_user_notification($user_id, null, 'user');
                 }
 
-                echo 'User created successfully. Please check your email to activate your account.';
+                require_once plugin_dir_path(__FILE__) . 'outputs/user_created_successfully_page_output.php';
+                user_created_successfully_page_output($username, $email);
                 exit;
             } else {
                 echo 'Error creating user';

@@ -36,6 +36,7 @@ function register_user_login_settings() {
     register_setting( 'user-login-settings-group', 'recaptcha_secret_key' );
     register_setting( 'user-login-settings-group', USER_ROLE_OPTION_NAME);
     register_setting( 'user-login-settings-group', SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME);
+    register_setting( 'user-login-settings-group', LOAD_PLUGIN_CSS_JS_OPTION_NAME);
 }
 
 
@@ -44,6 +45,8 @@ function registration_login_page()
     ?>
     <div class="wrap">
         <h2>User Registration & Login Settings</h2>
+
+        <p>Use the settings below to customize plugin behaviour. The registration or login form do not work properly, contact us here at: <a href="https://eazewebit.com">eazewebit.com</a> </p>
         <form method="post" action="options.php">
             <?php settings_fields( 'user-login-settings-group' ); ?>
             <?php do_settings_sections( 'user-login-settings-group' ); ?>
@@ -80,6 +83,13 @@ function registration_login_page()
                     <th scope="row">Send Registration Email to Admin</th>
                     <td>
                         <input type="checkbox" name="<?php echo SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME; ?>" value="1" <?php echo get_option(SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME) === '1' ? 'checked' : ''; ?>>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row">Load Plugin CSS and JS</th>
+                    <td>
+                        <input type="checkbox" name="<?php echo LOAD_PLUGIN_CSS_JS_OPTION_NAME; ?>" value="1" <?php echo get_option(LOAD_PLUGIN_CSS_JS_OPTION_NAME) === '1' ? 'checked' : ''; ?>>
                     </td>
                 </tr>
 
