@@ -15,7 +15,7 @@ class RecaptchaVerify
 
     public function __construct()
     {
-        // site secret key, should read from database
+        // site secret key should read from a database
         $this->site_secret_key = get_option(RECAPTCHA_SECRET_KEY_OPTION_NAME);
 
     }
@@ -28,7 +28,7 @@ class RecaptchaVerify
     public function verifyResponse($response): bool
     {
 
-        // sanity check
+        // check
         if (empty($response)) {
             return false;
         }

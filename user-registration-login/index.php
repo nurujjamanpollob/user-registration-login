@@ -4,7 +4,7 @@
  * Plugin Name:       User Registration & Login
  * Plugin URI:        https://eazewebit.com
  * Description:       This plugin allows you to show WordPress user registration form, login form and user profile in the frontend of your website.
- * Version:           1.1
+ * Version:           2.0.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Eaze Web IT
@@ -40,6 +40,9 @@ function user_registration_login_on_plugin_activated()
     add_option(USER_ROLE_OPTION_NAME, 'subscriber');
     add_option(SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME, false);
     add_option(LOAD_PLUGIN_CSS_JS_OPTION_NAME, true, '', true);
+    add_option(BLACKLISTED_USERNAMES_OPTION_NAME, '', '', false);
+    add_option(BLACKLISTED_EMAIL_DOMAINS_OPTION_NAME, '', '', false);
+    add_option(VERIFY_DISPOSABLE_EMAIL_DOMAINS_OPTION_NAME, true, '', true);
 
     // set transient to redirect to settings page
     set_transient('registration_login_activation_redirect', true, 30);
@@ -165,21 +168,23 @@ function add_new_user()
 
         // verify recaptcha
         $recaptcha_response = $_POST['g-recaptcha-response'];
-        $recaptcha_verify = new RecaptchaVerify();
-        $is_test_successful = $recaptcha_verify->verifyResponse($recaptcha_response);
 
-        if (!$is_test_successful) {
+        // test if recaptcha_response is empty
+        if (empty($recaptcha_response)) {
             registration_login_errors()->add('recaptcha_failed', 'Recaptcha verification failed');
+        } else {
+
+            $recaptcha_verify = new RecaptchaVerify();
+            $is_test_successful = $recaptcha_verify->verifyResponse($recaptcha_response);
+
+            if (!$is_test_successful) {
+                registration_login_errors()->add('recaptcha_failed', 'Recaptcha verification failed');
+            }
         }
 
-
         // sanitize user input
-        $username = sanitize_user($_POST['username']);
+        $username = sanitize_user($_POST['username'], true);
         $email = sanitize_email($_POST['email']);
-        $password = wp_generate_password();
-
-        // This is required to create a user
-        require_once(ABSPATH . WPINC . '/registration.php');
 
         // validate user input
         if (username_exists($username)) {
@@ -193,7 +198,30 @@ function add_new_user()
 
         if (!is_email($email)) {
             registration_login_errors()->add('email_invalid', 'Invalid email');
+
+            return;
         }
+
+        // test if the setting is enabled for disposable email domains
+        if (get_option(VERIFY_DISPOSABLE_EMAIL_DOMAINS_OPTION_NAME) === '1') {
+
+            // check if username or email is blacklisted
+            require_once plugin_dir_path(__FILE__) . 'verifier/verify_blocklisted_username_emails.php';
+
+            $blacklist_verifier = new VerifyBlocklistedUsernameEmails();
+            $isBlacklisted = $blacklist_verifier->isBlockListed($username, $email);
+
+            if ($isBlacklisted) {
+                registration_login_errors()->add('blacklisted', 'Cannot use this username or email');
+                return;
+            }
+
+        }
+
+        $password = wp_generate_password();
+
+        // This is required to create a user
+        require_once(ABSPATH . WPINC . '/registration.php');
 
         // is email exists
         if (email_exists($email)) {
@@ -231,7 +259,8 @@ function add_new_user()
                 user_created_successfully_page_output($username, $email);
                 exit;
             } else {
-                echo 'Error creating user';
+                require_once plugin_dir_path(__FILE__) . 'outputs/user_creation_failed_page_output.php';
+                user_creation_failed_page_output($username, $email);
             }
 
         }

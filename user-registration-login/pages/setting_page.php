@@ -37,6 +37,9 @@ function register_user_login_settings() {
     register_setting( 'user-login-settings-group', USER_ROLE_OPTION_NAME);
     register_setting( 'user-login-settings-group', SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME);
     register_setting( 'user-login-settings-group', LOAD_PLUGIN_CSS_JS_OPTION_NAME);
+    register_setting( 'user-login-settings-group', BLACKLISTED_USERNAMES_OPTION_NAME);
+    register_setting( 'user-login-settings-group', BLACKLISTED_EMAIL_DOMAINS_OPTION_NAME);
+    register_setting( 'user-login-settings-group', VERIFY_DISPOSABLE_EMAIL_DOMAINS_OPTION_NAME);
 }
 
 
@@ -92,6 +95,28 @@ function registration_login_page()
                         <input type="checkbox" name="<?php echo LOAD_PLUGIN_CSS_JS_OPTION_NAME; ?>" value="1" <?php echo get_option(LOAD_PLUGIN_CSS_JS_OPTION_NAME) === '1' ? 'checked' : ''; ?>>
                     </td>
                 </tr>
+
+                <tr valign="top">
+                    <th scope="row">Blacklisted Usernames (Seperated by new line)</th>
+                    <td>
+                        <textarea name="<?php echo BLACKLISTED_USERNAMES_OPTION_NAME; ?>" rows="5" cols="50"><?php echo get_option(BLACKLISTED_USERNAMES_OPTION_NAME); ?></textarea>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row">Blacklisted Email Domains (Seperated by new line)</th>
+                    <td>
+                        <textarea name="<?php echo BLACKLISTED_EMAIL_DOMAINS_OPTION_NAME; ?>" rows="5" cols="50"><?php echo get_option(BLACKLISTED_EMAIL_DOMAINS_OPTION_NAME); ?></textarea>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row">Verify for disposable email domain to reduce spam?</th>
+                    <td>
+                        <input type="checkbox" name="<?php echo VERIFY_DISPOSABLE_EMAIL_DOMAINS_OPTION_NAME; ?>" value="1" <?php echo get_option(VERIFY_DISPOSABLE_EMAIL_DOMAINS_OPTION_NAME) === '1' ? 'checked' : ''; ?>>
+                    </td>
+                </tr>
+
 
             </table>
             <?php submit_button(); ?>

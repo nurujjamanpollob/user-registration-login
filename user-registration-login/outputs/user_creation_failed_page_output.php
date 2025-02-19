@@ -4,9 +4,9 @@
  * Output for user created successful page
  * @return void
  */
-function user_created_successfully_page_output($username, $email)
+function user_creation_failed_page_output($username, $email)
 {
-    $user_created_successfully_image_url = plugin_dir_url(__FILE__) . '../assets/img/user_created_successfully.webp';
+    $user_created_successfully_image_url = plugin_dir_url(__FILE__) . '../assets/img/error_404.webp';
 
     ?>
 
@@ -21,6 +21,7 @@ function user_created_successfully_page_output($username, $email)
 
             p {
                 max-width: 800px;
+                text-align: center;
             }
 
             body {
@@ -87,10 +88,9 @@ function user_created_successfully_page_output($username, $email)
         <img class="success_message_image" src="<?php echo $user_created_successfully_image_url; ?>"
              alt="User Created Successfully" style="max-height: 500px; max-width: 1000px" width="100%" height="70%">
 
-        <h1><?php echo $username ?>, your user account created successfully!</h1>
+        <h1><?php echo $username ?>, your user account creation failed :(</h1>
 
-        <p>Thank you for registering with us. We have emailed you to <?php echo $email ?>. Please check your email and
-            set a new password to access this website.</p>
+        <p>Unfortunately, the username: <?php echo $username ?> and email: <?php echo $email ?> cannot be used to create an account at this time. Please try again later.</p>
 
     </div>
     </body>

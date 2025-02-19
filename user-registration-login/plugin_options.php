@@ -9,10 +9,6 @@ const RECAPTCHA_SITE_KEY = '';
 const RECAPTCHA_SECRET_KEY = '';
 const RECAPTCHA_SITE_KEY_OPTION_NAME = 'recaptcha_site_key';
 const RECAPTCHA_SECRET_KEY_OPTION_NAME = 'recaptcha_secret_key';
-// redirect after activation option name
-const REDIRECT_AFTER_ACTIVATION_OPTION_NAME = 'redirect_after_activation';
-// captcha test on plugin activation option name
-const RECAPTCHA_TESTED_OPTION_NAME = 'recaptcha_tested';
 
 // Define menu slug
 const REGISTRATION_LOGIN_MENU_SETTINGS_SLUG = 'user-registration-login-settings';
@@ -34,3 +30,12 @@ const SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME = 'send_registration_email_to
 
 // Load Plugin CSS and js options name
 const LOAD_PLUGIN_CSS_JS_OPTION_NAME = 'load_user-registration_and_login_plugin_css_js';
+
+// option name for a list of blacklisted usernames
+const BLACKLISTED_USERNAMES_OPTION_NAME = 'user_registration_login_blacklisted_usernames';
+
+// option name for a list of blacklisted email domains
+const BLACKLISTED_EMAIL_DOMAINS_OPTION_NAME = 'user_registration_login_blacklisted_email_domains';
+
+// verify disposable email domains option name
+const VERIFY_DISPOSABLE_EMAIL_DOMAINS_OPTION_NAME = 'user_registration_login_verify_disposable_email_domains';
