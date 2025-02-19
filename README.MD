@@ -24,8 +24,10 @@ how to embed forms in your website:
 
 Customization:
 The plugin right now offers a few customizable options. 
-such as recaptcha keys, new user default role, user creation email sent to the site admin,
-and load plugin CSS js for input fields styling. 
+such as recaptcha keys, new user default role, user creation email sent to the site admin, 
+load plugin CSS js for input fields styling, blacklisting usernames, email domains, 
+and blacklisting signup from specified disposable email domains defined in this file: 
+`/assets/file/disposable_email_blocklist.conf`
 
 Note: if your theme has custom CSS for input fields, you can disable the plugin CSS and js for input fields styling, 
 in order to use your theme's CSS for input fields.
