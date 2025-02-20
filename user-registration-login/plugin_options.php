@@ -39,3 +39,24 @@ const BLACKLISTED_EMAIL_DOMAINS_OPTION_NAME = 'user_registration_login_blacklist
 
 // verify disposable email domains option name
 const VERIFY_DISPOSABLE_EMAIL_DOMAINS_OPTION_NAME = 'user_registration_login_verify_disposable_email_domains';
+
+// enable blacklist check option name
+const ENABLE_BLACKLIST_CHECK_OPTION_NAME = 'user_registration_login_enable_blacklist_check';
+
+// enable whitelist check option name
+const ENABLE_WHITELIST_CHECK_OPTION_NAME = 'user_registration_login_enable_whitelist_check';
+
+// option name for a list of whitelisted email domains
+const WHITELISTED_EMAIL_DOMAINS_OPTION_NAME = 'user_registration_login_whitelisted_email_domains';
+
+// disable wordpress default login url option name
+const DISABLE_WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME = 'user_registration_login_disable_wordpress_default_login_url';
+
+// wordpress default login url option name
+const WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME = 'user_registration_login_wordpress_default_login_url';
+
+// disable default registration url option name
+const DISABLE_DEFAULT_REGISTRATION_URL_OPTION_NAME = 'user_registration_login_disable_default_registration_url';
+
+// WordPress default registration url option name
+const WORDPRESS_DEFAULT_REGISTRATION_URL_OPTION_NAME = 'user_registration_login_wordpress_default_registration_url';

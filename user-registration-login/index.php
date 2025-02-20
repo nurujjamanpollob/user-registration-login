@@ -43,13 +43,18 @@ function user_registration_login_on_plugin_activated()
     add_option(BLACKLISTED_USERNAMES_OPTION_NAME, '', '', false);
     add_option(BLACKLISTED_EMAIL_DOMAINS_OPTION_NAME, '', '', false);
     add_option(VERIFY_DISPOSABLE_EMAIL_DOMAINS_OPTION_NAME, true, '', true);
+    add_option(ENABLE_BLACKLIST_CHECK_OPTION_NAME, false, '', true);
+    add_option(ENABLE_WHITELIST_CHECK_OPTION_NAME, false, '', true);
+    add_option(WHITELISTED_EMAIL_DOMAINS_OPTION_NAME, '', '', false);
+    add_option(DISABLE_WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME, false, '', false);
+    add_option(WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME, '', '', false);
+    add_option(WORDPRESS_DEFAULT_REGISTRATION_URL_OPTION_NAME, '', '', false);
+    add_option(DISABLE_DEFAULT_REGISTRATION_URL_OPTION_NAME, false, '', false);
 
     // set transient to redirect to settings page
     set_transient('registration_login_activation_redirect', true, 30);
 
-
 }
-
 
 /**
  * Initialize and register the CSS and js files
@@ -71,6 +76,60 @@ function register_plugin_assets()
 }
 
 add_action('wp_enqueue_scripts', 'register_plugin_assets');
+
+
+function custom_login_redirect() {
+    global $pagenow;
+
+    // handle default WordPress registration page
+    if( 'wp-login.php' == $pagenow  && !is_user_logged_in() && isset($_GET['action']) && $_GET['action'] == 'register') {
+
+        // if the option is enabled to disable the default wordpress registration page
+        if(get_option(DISABLE_DEFAULT_REGISTRATION_URL_OPTION_NAME)) {
+
+            // access to the WORDPRESS_DEFAULT_REGISTRATION_URL_OPTION_NAME option and match
+            //if any page is set and the page is accessible
+            $registration_url = get_option(WORDPRESS_DEFAULT_REGISTRATION_URL_OPTION_NAME);
+
+            // get the page by page id
+            $page = get_post($registration_url);
+
+            // if the page is not null
+            if ($page) {
+                // redirect to the page
+                wp_redirect(get_permalink($registration_url));
+                exit();
+            }
+        }
+
+    }
+
+    // handle default wordpress login page, other url parameters should be null
+    if( 'wp-login.php' == $pagenow  && !is_user_logged_in() && !isset($_GET['action'])) {
+
+        // if the option is enabled to disable the default WordPress login page
+        if(get_option(DISABLE_WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME)) {
+
+            // access to the WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME option and match
+            //if any page is set and page is accessible
+            $login_url = get_option(WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME);
+
+            // get the page by page id
+            $page = get_post($login_url);
+
+            // if the page is not null
+            if ($page) {
+                // redirect to the page
+                wp_redirect(get_permalink($login_url));
+                exit();
+            }
+        }
+
+    }
+
+}
+add_action('init', 'custom_login_redirect');
+
 
 /**
  * Add shortcode for a registration form
@@ -186,12 +245,6 @@ function add_new_user()
         $username = sanitize_user($_POST['username'], true);
         $email = sanitize_email($_POST['email']);
 
-        // validate user input
-        if (username_exists($username)) {
-
-            registration_login_errors()->add('username_exists', 'Username already exists');
-        }
-
         if (!validate_username($username)) {
             registration_login_errors()->add('username_invalid', 'Invalid username');
         }
@@ -202,6 +255,31 @@ function add_new_user()
             return;
         }
 
+
+        require_once plugin_dir_path(__FILE__) . 'verifier/verify_blocklisted_username_emails.php';
+        $blacklist_verifier = new VerifyBlocklistedUsernameEmails();
+
+        // blacklist test only executed if the setting is enabled and whitelist is disabled
+        if (get_option(ENABLE_BLACKLIST_CHECK_OPTION_NAME) === '1' && get_option(ENABLE_WHITELIST_CHECK_OPTION_NAME) !== '1') {
+
+            // check if email domain is blacklisted
+            $isBlacklisted = $blacklist_verifier->isEmailBlocklisted($email);
+
+            if ($isBlacklisted) {
+                registration_login_errors()->add('blacklisted', 'Cannot use the username or email provided');
+                return;
+            }
+
+        }
+
+        // check if the username is blacklisted
+        $isBlacklisted = $blacklist_verifier->isUsernameBlocklisted($username);
+
+        if ($isBlacklisted) {
+            registration_login_errors()->add('blacklisted', 'Cannot use the username or email provided');
+            return;
+        }
+
         // test if the setting is enabled for disposable email domains
         if (get_option(VERIFY_DISPOSABLE_EMAIL_DOMAINS_OPTION_NAME) === '1') {
 
@@ -209,13 +287,19 @@ function add_new_user()
             require_once plugin_dir_path(__FILE__) . 'verifier/verify_blocklisted_username_emails.php';
 
             $blacklist_verifier = new VerifyBlocklistedUsernameEmails();
-            $isBlacklisted = $blacklist_verifier->isBlockListed($username, $email);
+            $isBlacklisted = $blacklist_verifier->isDisposableEmail($email);
 
             if ($isBlacklisted) {
                 registration_login_errors()->add('blacklisted', 'Cannot use this username or email');
                 return;
             }
 
+        }
+
+        // validate user input
+        if (username_exists($username)) {
+
+            registration_login_errors()->add('username_exists', 'Username already exists');
         }
 
         $password = wp_generate_password();
@@ -232,6 +316,23 @@ function add_new_user()
 
         // if no errors, then create user
         if (empty($errors)) {
+
+            // check if the whitelist feature is enabled
+            if (get_option(ENABLE_WHITELIST_CHECK_OPTION_NAME) === '1') {
+                // check if the email domain is whitelisted
+                require_once plugin_dir_path(__FILE__) . 'verifier/verify_whitelisted_email_domains.php';
+
+                $whitelist_verifier = new VerifyWhitelistedEmailDomains();
+
+                $isWhitelisted = $whitelist_verifier->isEmailWhitelisted($email);
+
+                if (!$isWhitelisted) {
+                    registration_login_errors()->add('email_not_whitelisted', 'Cannot use this username or email');
+                    return;
+                }
+
+            }
+
 
             // insert user
             $default_new_user = array(
@@ -362,23 +463,24 @@ function login_form()
         <form id="login_form" class="form" action="" method="POST">
             <fieldset style="border: 0">
                 <div class="input-container">
-                    <input type="text" id="username" name="username" value="" materialize="true"
-                           aria-labelledby="label-fname"/>
                     <label class="label" for="username">
                         <div class="text"><?php _e('Username/Email') ?></div>
                     </label>
+                    <input type="text" id="username" name="username" value="" materialize="true"
+                           aria-labelledby="label-fname"/>
                 </div>
 
                 <div class="input-container">
-                    <input type="password" id="password" name="password" value="" materialize="true"
-                           aria-labelledby="label-fname"/>
                     <label class="label" for="password">
                         <div class="text"><?php _e('Password') ?></div>
                     </label>
+                    <input type="password" id="password" name="password" value="" materialize="true"
+                           aria-labelledby="label-fname"/>
                 </div>
 
                 <div class="input-container">
-                    <div class="g-recaptcha" data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
+                    <div class="g-recaptcha"
+                         data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
                 </div>
 
                 <p>

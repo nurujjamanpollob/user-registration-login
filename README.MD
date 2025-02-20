@@ -1,12 +1,10 @@
 WordPress' user registration and login plugin. 
-This plugin is a simple and easy to use plugin that allows you to add a user registration and login form to your website. The plugin is fully customizable and can be easily integrated into any website. 
-The plugin is also fully responsive and works on all devices.
+This plugin is a simple and easy to use plugin that allows you to add a user registration and login form to your website, 
+while provides security with Google reCaptcha, and anti-spam features.
 
-If your website needs a simple and easy to use user registration and login form, then this plugin is the perfect solution for you.
-
-This plugin requires google reCaptcha to be enabled on your website. You can get the reCaptcha keys from the Google reCaptcha website.
-
-Embed login and registration forms in any posts and pages using shortcodes.
+The plugin is designed to be lightweight and no unnecessary features,
+and can be easily customized to fit your website's design. 
+This plugin is perfect if you want a robust user registration and login system without the bloat.
 
 How to get started:
 1. Download the plugin zip file 'user-registration-login.zip'
@@ -24,10 +22,17 @@ how to embed forms in your website:
 
 Customization:
 The plugin right now offers a few customizable options. 
-such as recaptcha keys, new user default role, user creation email sent to the site admin, 
-load plugin CSS js for input fields styling, blacklisting usernames, email domains, 
-and blacklisting signup from specified disposable email domains defined in this file: 
-`/assets/file/disposable_email_blocklist.conf`
+
+The list of customizable options includes:
+- reCaptcha keys
+- New user default role
+- User creation email sent to the site admin
+- Load plugin CSS js for input fields styling
+- Blacklisting usernames
+- Blocklisting email domains
+- Blocklisting signup from known disposable email domains according to the list from this file `user-registration-login/assets/file/disposable_email_blocklist.conf`
+- Allow signup from specific email domains (Whitelist email domains)
+
 
 Note: if your theme has custom CSS for input fields, you can disable the plugin CSS and js for input fields styling, 
 in order to use your theme's CSS for input fields.

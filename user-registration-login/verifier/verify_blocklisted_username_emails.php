@@ -66,14 +66,14 @@ class VerifyBlocklistedUsernameEmails
     }
 
     /**
-     * Verify both username and email
+     * Verify both username and email, do not verify disposable email
      * @param $username
      * @param $email
      * @return bool
      */
     public function isBlockListed($username, $email): bool
     {
-        if ($this->isUsernameBlocklisted($username) || $this->isEmailBlocklisted($email) || $this->isDisposableEmail($email)) {
+        if ($this->isUsernameBlocklisted($username) || $this->isEmailBlocklisted($email)) {
             return true;
         }
 
@@ -85,7 +85,7 @@ class VerifyBlocklistedUsernameEmails
      * @param $string
      * @return array
      */
-    public function stringToArray($string): array
+    public static function stringToArray($string): array
     {
         return explode("\n", $string);
     }
