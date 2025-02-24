@@ -7,8 +7,58 @@ if (!defined('ABSPATH')) {
 // add top level menu
 add_action('admin_menu', 'registration_login_menu');
 
+add_action( 'wp_ajax_setting_handle', 'check_shortcode' );
+
+// admin script enqueue
+function add_material_dialog() {
+    //register script from the plugin directory
+    wp_register_script('minimal-materialize-dialog', plugin_dir_url(__FILE__) . '../assets/js/dialog.js');
+    //enqueue the script
+    wp_enqueue_script('minimal-materialize-dialog');
+}
+
+add_action( 'admin_enqueue_scripts', 'add_material_dialog', 0);
+
+
+function check_shortcode() {
+    $registrationPageId = $_POST['registrationPageId'];
+    $registrationShortCodeName = $_POST['registrationShortCodeName'];
+    $loginPageId = $_POST['loginPageId'];
+    $loginShortCodeName = $_POST['loginShortCodeName'];
+
+
+
+    // perform the shortcode check
+    require_once plugin_dir_path(__FILE__) . '../utilities/link_direction_handler.php';
+
+    // response json builder
+    $response = array();
+
+
+    // check the registration shortcode
+    $registrationShortCodeCheck = LinkDirectionHandler::isPageContainsShortcode($registrationPageId, $registrationShortCodeName);
+
+    // check the login shortcode
+    $loginShortCodeCheck = LinkDirectionHandler::isPageContainsShortcode($loginPageId, $loginShortCodeName);
+
+    // add the registration shortcode check result to the response
+    $response['registrationShortCodeCheck'] = $registrationShortCodeCheck;
+
+    // add the login shortcode check result to the response
+    $response['loginShortCodeCheck'] = $loginShortCodeCheck;
+
+    // send the response
+    echo json_encode($response);
+    wp_die();
+}
+
 // include once the menu_dashboard_content.php file
 require_once 'menu_dashboard_content.php';
+
+
+function get_404_image():string {
+    return '<img src="' . plugin_dir_url(__FILE__) . '../assets/img/error_404.webp" style="width: 100%; height: 40%; margin-bottom: 20px;"/>';
+}
 
 function registration_login_menu()
 {
@@ -54,6 +104,79 @@ function register_user_login_settings()
 function registration_login_page()
 {
     ?>
+
+        <script type="text/javascript">
+
+            // page load event
+            document.addEventListener('DOMContentLoaded', function () {
+                // get the form element
+                const form = document.getElementById('settings_page_form');
+                // add submit event listener
+                form.addEventListener('submit', function (event) {
+                    // prevent form submission
+                    event.preventDefault();
+
+                    // get registration page id by name
+                    const registrationPageId = document.getElementsByName('<?php echo WORDPRESS_DEFAULT_REGISTRATION_URL_OPTION_NAME; ?>')[0].value;
+                    // get login page id by name
+                    const loginPageId = document.getElementsByName('<?php echo WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME; ?>')[0].value;
+
+                    // submit to wp ajax
+                    jQuery.ajax({
+                        url: ajaxurl,
+                        type: 'post',
+                        data: {
+                            action: 'setting_handle',
+                            registrationPageId: registrationPageId,
+                            registrationShortCodeName: 'register_form',
+                            loginPageId: loginPageId,
+                            loginShortCodeName: 'login_form'
+                        },
+                        success: function (response) {
+
+                            // we need to check both registration and login shortcode response is true
+                            const responseObj = JSON.parse(response);
+
+                            // check if both registration and login shortcodes are true
+                            if (responseObj.registrationShortCodeCheck && responseObj.loginShortCodeCheck) {
+
+                                HTMLFormElement.prototype.submit.call(form);
+
+
+
+                            } else {
+
+                                // collect error messages
+                                let errorMessage = '<div style="display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: center;" class="error_div">';
+
+                                // add header image
+                                errorMessage += '<?php echo get_404_image(); ?>';
+
+
+                                if (!responseObj.registrationShortCodeCheck) {
+                                    errorMessage += '<span class="font-family: \'DM Sans\',sans-serif;"> Error: Registration page does not contain the registration form shortcode. </p>';
+                                }
+
+                                if (!responseObj.loginShortCodeCheck) {
+                                    errorMessage += '<span class="font-family: \'DM Sans\',sans-serif;"> Error: Login page does not contain the login form shortcode. </span>';
+                                }
+
+                                errorMessage += '</div>';
+
+                                createAndShowDialog('', errorMessage, null, [{text: 'Cancel', onClick: () => {closeDialog();}}]);
+
+
+
+                            }
+                        }
+                    });
+
+
+
+                });
+            });
+        </script>
+
     <div class="wrap">
         <h2>User Registration & Login Settings</h2>
 
@@ -113,7 +236,8 @@ function registration_login_page()
                     Instead, they will be redirected to the custom registration/login URL
                     that you have set in the plugin settings.
                     Do not do this
-                    if you don't have a custom page as a registration/login url which contains the registration/login form,
+                    if you don't have a custom page as a registration/login url which contains the registration/login
+                    form,
                     and yet not set the custom registration/login URL in the plugin settings.
                     You also need to make sure that reCaptcha is working properly.
                 </li>
@@ -127,7 +251,8 @@ function registration_login_page()
                 </li>
                 <li>
                     WordPress Default Registration URL: The custom registration URL that you want to set.
-                    If you disable the WordPress default registration URL, you need to set a custom registration URL here.
+                    If you disable the WordPress default registration URL, you need to set a custom registration URL
+                    here.
                     This custom registration URL should contain the registration form.
                     If you don't have a custom registration URL, do not disable the WordPress default registration URL.
 
@@ -139,7 +264,7 @@ function registration_login_page()
             please contact us at <a href="https://eazewebit.com">eazewebit.com</a>
         </div>
 
-        <form method="post" action="options.php">
+        <form id="settings_page_form" method="post" action="options.php">
             <?php settings_fields('user-login-settings-group'); ?>
             <?php do_settings_sections('user-login-settings-group'); ?>
 
@@ -198,7 +323,9 @@ function registration_login_page()
                 </tr>
 
                 <tr valign="top">
-                    <th scope="row">Enable blacklist Check on email domains? (Checks will not perform if whitelist check is enabled)</th>
+                    <th scope="row">Enable blacklist Check on email domains? (Checks will not perform if whitelist check
+                        is enabled)
+                    </th>
                     <td>
                         <input type="checkbox" name="<?php echo ENABLE_BLACKLIST_CHECK_OPTION_NAME; ?>"
                                value="1" <?php echo get_option(ENABLE_BLACKLIST_CHECK_OPTION_NAME) === '1' ? 'checked' : ''; ?>>

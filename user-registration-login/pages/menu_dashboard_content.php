@@ -21,6 +21,10 @@ function menu_dashboard_content()
         The Setting page link is <a href="<?php echo admin_url('admin.php?page=user-registration-login-settings'); ?>">here</a>
         <br>
         The Shortcodes page link is <a href="<?php echo admin_url('admin.php?page=user-registration-login-shortcodes'); ?>">here</a>
+
+        Please do note that,
+        recaptcha key do not work unless you add api keys
+        and perform a successful test here: <a href="<?php echo admin_url('admin.php?page=user-registration-login-recaptcha-test'); ?>">Recaptcha Test</a>
     </div>
     <?php
 }

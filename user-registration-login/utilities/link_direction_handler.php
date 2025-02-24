@@ -1,0 +1,94 @@
+<?php
+
+
+/**
+ * This class used to handle the link navigation, and captures wp login and registration page navigations
+ */
+
+class LinkDirectionHandler {
+
+    public function __construct()
+    {
+        // add action to handle the link direction
+        add_action('init', array($this, 'handle_link_direction'));
+    }
+
+    /**
+     * Handle the link direction
+     */
+    public function handle_link_direction() {
+        global $pagenow;
+
+        // handle default WordPress registration page
+        if( 'wp-login.php' == $pagenow  && !is_user_logged_in() && isset($_GET['action']) && $_GET['action'] == 'register') {
+
+            // if the option is enabled to disable the default wordpress registration page
+            if(get_option(DISABLE_DEFAULT_REGISTRATION_URL_OPTION_NAME)) {
+
+                // access to the WORDPRESS_DEFAULT_REGISTRATION_URL_OPTION_NAME option and match
+                //if any page is set and the page is accessible
+                $registration_page_id = get_option(WORDPRESS_DEFAULT_REGISTRATION_URL_OPTION_NAME);
+
+                // get the page by page id
+                $page = get_post($registration_page_id);
+
+                // if the page is not null
+                if ($page) {
+
+                    // check if shortcode called 'registration_form' is present in the page
+                    if($this->isPageContainsShortcode($registration_page_id, 'register_form')) {
+                        // redirect to the page
+                        wp_redirect(get_permalink($registration_page_id));
+                        exit();
+                    }
+                }
+            }
+
+        }
+
+        // handle default WordPress login page, other url parameters should be null
+        if( 'wp-login.php' == $pagenow  && !is_user_logged_in() && !isset($_GET['action'])) {
+
+            // if the option is enabled to disable the default WordPress login page
+            if(get_option(DISABLE_WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME)) {
+
+                // access to the WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME option and match
+                //if any page is set and page is accessible
+                $login_page_id = get_option(WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME);
+
+                // get the page by page id
+                $page = get_post($login_page_id);
+
+
+                // if the page is not null
+                if ($page) {
+
+                    // check if shortcode called 'login_form' is present in the page
+                    if($this->isPageContainsShortcode($login_page_id, 'login_form')) {
+                        // redirect to the page
+                        wp_redirect(get_permalink($login_page_id));
+                        exit();
+                    }
+                }
+            }
+
+        }
+    }
+
+
+    /**
+     * This method return true if the pageId contains a VALID SHORTCODE provided
+     * @param $pageId
+     * @@param $shortcode string
+     * @return bool
+     * @since 1.0.0
+     */
+    public static function isPageContainsShortcode($pageId, string $shortcode): bool
+    {
+        $page = get_post($pageId);
+        if ($page) {
+            return has_shortcode($page->post_content, $shortcode);
+        }
+        return false;
+    }
+}

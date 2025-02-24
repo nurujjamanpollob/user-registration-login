@@ -6,6 +6,15 @@ The plugin is designed to be lightweight and no unnecessary features,
 and can be easily customized to fit your website's design. 
 This plugin is perfect if you want a robust user registration and login system without the bloat.
 
+This plugin now offers anti-spam features, such as blacklisting usernames, blocklisting email domains, 
+whitelist email domains, and blocklisting signup from known disposable email domains.
+
+This plugin now offers override default WordPress login and registration pages,
+you can use the same shortcode [register_form] or [login_form]
+to override the default WordPress login and registration pages.
+Check the settings for more details.
+Password reset and password change pages are also ongoing development, soon support will be added.
+
 How to get started:
 1. Download the plugin zip file 'user-registration-login.zip'
 2. Go to your WordPress admin panel and upload the zip file
@@ -32,6 +41,7 @@ The list of customizable options includes:
 - Blocklisting email domains
 - Blocklisting signup from known disposable email domains according to the list from this file `user-registration-login/assets/file/disposable_email_blocklist.conf`
 - Allow signup from specific email domains (Whitelist email domains)
+- Override default WordPress login and registration pages
 
 
 Note: if your theme has custom CSS for input fields, you can disable the plugin CSS and js for input fields styling, 

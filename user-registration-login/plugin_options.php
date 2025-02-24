@@ -60,3 +60,6 @@ const DISABLE_DEFAULT_REGISTRATION_URL_OPTION_NAME = 'user_registration_login_di
 
 // WordPress default registration url option name
 const WORDPRESS_DEFAULT_REGISTRATION_URL_OPTION_NAME = 'user_registration_login_wordpress_default_registration_url';
+
+// captcha verified option name
+const RECAPTCHA_VERIFIED_OPTION_NAME = 'user_registration_login_captcha_verified';

@@ -24,8 +24,19 @@ function recaptcha_test()
 
 
     ?>
+
     <div class="wrap">
         <h2>Recaptcha Test</h2>
+
+        <p>
+            Use the following form to test it if the recaptcha is working properly.
+            The reCaptcha doesn't work in forms until you complete recaptcha test. <br>
+
+            Current status: <?php echo get_option(RECAPTCHA_VERIFIED_OPTION_NAME) ? "<b style='color: green'>Verified</b>" : "<b style='color: red'>Not Verified</b>"; ?>
+        </p> Make sure you have added the recaptcha keys in the settings page. <br>
+        <a href="<?php echo admin_url('admin.php?page=user-registration-login-settings'); ?>">Settings Page</a>
+        <br>
+        <br>
         <form method="post"  id="recaptcha-test-form" action="">
             <div class="g-recaptcha" data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
             <br>
@@ -53,13 +64,25 @@ function show_recaptcha_test_submission_result()
     // get status code and check if it contains test-passed
     $is_test_passed = count($recaptcha_test_result) > 0 && recaptcha_test_results()->get_error_code() === "test-passed";
 
+    require_once plugin_dir_path(__FILE__) . '../plugin_options.php';
+
     if (count($recaptcha_test_result) > 0 && $is_test_passed) {
+
+        // update the option
+        update_option(RECAPTCHA_VERIFIED_OPTION_NAME, true);
         ?>
         <div class="notice notice-success is-dismissible">
             <p><?php echo $recaptcha_test_result[0]; ?></p>
         </div>
         <?php
+
+
+
     } else if (count($recaptcha_test_result) > 0) {
+
+        // update the option
+        update_option(RECAPTCHA_VERIFIED_OPTION_NAME, false);
+
         ?>
         <div class="notice notice-error is-dismissible">
             <p><?php echo $recaptcha_test_result[0]; ?></p>
