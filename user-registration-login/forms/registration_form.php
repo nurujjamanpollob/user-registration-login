@@ -243,13 +243,16 @@ function getTheRecaptchaOptionValue(): void
 
     if ($recaptcha_verified) {
 
-        // verify recaptcha
-        try {
-            $recaptcha_response = $_POST['g-recaptcha-response'];
-        } catch (Exception $e) {
-            //TODO: log the error
+
+        if(!isset($_POST['g-recaptcha-response'])) {
             registration_login_errors()->add('recaptcha_failed', 'Recaptcha verification failed');
+
+            return;
         }
+        // verify recaptcha
+
+        $recaptcha_response = $_POST['g-recaptcha-response'];
+
 
         // test if recaptcha_response is empty
         if (empty($recaptcha_response)) {

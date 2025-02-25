@@ -4,7 +4,7 @@
  * Plugin Name:       User Registration & Login
  * Plugin URI:        https://eazewebit.com
  * Description:       This plugin allows you to show WordPress user registration form, login form and user profile in the frontend of your website.
- * Version:           2.1.0
+ * Version:           2.1.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Eaze Web IT
@@ -117,8 +117,7 @@ function registration_login_shortcodes_link($links)
 
 add_filter("plugin_action_links_$plugin", 'registration_login_shortcodes_link');
 
-// create login form shortcode
-add_shortcode('login_form', 'login_form');
+
 
 
 

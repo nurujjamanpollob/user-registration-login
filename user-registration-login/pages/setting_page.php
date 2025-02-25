@@ -21,12 +21,27 @@ add_action( 'admin_enqueue_scripts', 'add_material_dialog', 0);
 
 
 function check_shortcode() {
+
+    // isset check
+    if(
+            !isset($_POST['registrationPageId']) ||
+            !isset($_POST['registrationShortCodeName']) ||
+            !isset($_POST['loginPageId']) ||
+            !isset($_POST['loginShortCodeName']) ||
+            !isset($_POST['registrationPageOverrideEnabled']) ||
+            !isset($_POST['loginPageOverrideEnabled'])
+    ) {
+        echo json_encode(array('registrationShortCodeCheck' => 'false', 'loginShortCodeCheck' => 'false'));
+        wp_die();
+    }
+
+
     $registrationPageId = $_POST['registrationPageId'];
     $registrationShortCodeName = $_POST['registrationShortCodeName'];
     $loginPageId = $_POST['loginPageId'];
     $loginShortCodeName = $_POST['loginShortCodeName'];
-
-
+    $registrationPageOverrideEnabled = $_POST['registrationPageOverrideEnabled'];
+    $loginPageOverrideEnabled = $_POST['loginPageOverrideEnabled'];
 
     // perform the shortcode check
     require_once plugin_dir_path(__FILE__) . '../utilities/link_direction_handler.php';
@@ -34,21 +49,27 @@ function check_shortcode() {
     // response json builder
     $response = array();
 
+    if($registrationPageOverrideEnabled === 'true') {
 
-    // check the registration shortcode
-    $registrationShortCodeCheck = LinkDirectionHandler::isPageContainsShortcode($registrationPageId, $registrationShortCodeName);
+        $registrationShortCodeCheck = LinkDirectionHandler::isPageContainsShortcode($registrationPageId, $registrationShortCodeName);
+    } else {
+        $registrationShortCodeCheck = true;
+    }
+    if($loginPageOverrideEnabled === 'true') {
 
-    // check the login shortcode
-    $loginShortCodeCheck = LinkDirectionHandler::isPageContainsShortcode($loginPageId, $loginShortCodeName);
-
+        $loginShortCodeCheck = LinkDirectionHandler::isPageContainsShortcode($loginPageId, $loginShortCodeName);
+    } else {
+        $loginShortCodeCheck = true;
+    }
     // add the registration shortcode check result to the response
-    $response['registrationShortCodeCheck'] = $registrationShortCodeCheck;
+    $response['registrationShortCodeCheck'] = $registrationShortCodeCheck ? 'true' : 'false';
 
     // add the login shortcode check result to the response
-    $response['loginShortCodeCheck'] = $loginShortCodeCheck;
+    $response['loginShortCodeCheck'] = $loginShortCodeCheck ? 'true' : 'false';
 
     // send the response
     echo json_encode($response);
+
     wp_die();
 }
 
@@ -121,6 +142,9 @@ function registration_login_page()
                     // get login page id by name
                     const loginPageId = document.getElementsByName('<?php echo WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME; ?>')[0].value;
 
+                    const registrationPageOverrideEnabled = document.getElementsByName('<?php echo DISABLE_DEFAULT_REGISTRATION_URL_OPTION_NAME; ?>')[0].checked ? 'true' : 'false';
+                    const loginPageOverrideEnabled = document.getElementsByName('<?php echo DISABLE_WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME; ?>')[0].checked ? 'true' : 'false';
+
                     // submit to wp ajax
                     jQuery.ajax({
                         url: ajaxurl,
@@ -130,15 +154,20 @@ function registration_login_page()
                             registrationPageId: registrationPageId,
                             registrationShortCodeName: 'register_form',
                             loginPageId: loginPageId,
-                            loginShortCodeName: 'login_form'
+                            loginShortCodeName: 'login_form',
+                            registrationPageOverrideEnabled: registrationPageOverrideEnabled,
+                            loginPageOverrideEnabled: loginPageOverrideEnabled
                         },
                         success: function (response) {
 
                             // we need to check both registration and login shortcode response is true
                             const responseObj = JSON.parse(response);
 
+                            // log the response
+                            console.log(responseObj);
+
                             // check if both registration and login shortcodes are true
-                            if (responseObj.registrationShortCodeCheck && responseObj.loginShortCodeCheck) {
+                            if (responseObj.registrationShortCodeCheck === 'true' && responseObj.loginShortCodeCheck === 'true') {
 
                                 HTMLFormElement.prototype.submit.call(form);
 
@@ -152,14 +181,16 @@ function registration_login_page()
                                 // add header image
                                 errorMessage += '<?php echo get_404_image(); ?>';
 
-
-                                if (!responseObj.registrationShortCodeCheck) {
-                                    errorMessage += '<span class="font-family: \'DM Sans\',sans-serif;"> Error: Registration page does not contain the registration form shortcode. </p>';
+                                // check if registration shortcode is false
+                                if (responseObj.registrationShortCodeCheck === 'false') {
+                                    errorMessage += '<span class="error"><b>Error:</b> Registration page does not contain the shortcode [register_form]. Please add the shortcode to the page and try again.</span>';
                                 }
 
-                                if (!responseObj.loginShortCodeCheck) {
-                                    errorMessage += '<span class="font-family: \'DM Sans\',sans-serif;"> Error: Login page does not contain the login form shortcode. </span>';
+                                // check if login shortcode is false
+                                if (responseObj.loginShortCodeCheck === 'false') {
+                                    errorMessage += '<span class="error"><b>Error:</b> Login page does not contain the shortcode [login_form]. Please add the shortcode to the page and try again.</span>';
                                 }
+
 
                                 errorMessage += '</div>';
 

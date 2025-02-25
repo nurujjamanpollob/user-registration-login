@@ -1,6 +1,9 @@
 <?php
 
 
+add_shortcode('login_form', 'login_form');
+add_action('init', 'login_user');
+
 function login_form()
 {
     if (!is_user_logged_in()) {
@@ -84,5 +87,3 @@ function login_user()
 
     }
 }
-
-add_action('init', 'login_user');
