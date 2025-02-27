@@ -25,6 +25,11 @@ class SetSiteActivationOptions
         add_option(WORDPRESS_DEFAULT_REGISTRATION_URL_OPTION_NAME, '', '', false);
         add_option(DISABLE_DEFAULT_REGISTRATION_URL_OPTION_NAME, false, '', false);
         add_option(RECAPTCHA_VERIFIED_OPTION_NAME, false, '', true);
+        add_option(DISABLE_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME , false, '', false);
+        add_option(WORDPRESS_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME, '', '', false);
+        add_option(DISABLE_DEFAULT_PASSWORD_SET_URL_OPTION_NAME, false, '', false);
+        add_option(WORDPRESS_DEFAULT_PASSWORD_SET_URL_OPTION_NAME, '', '', false);
+        add_option(PASSWORD_MINIMUM_LENGTH_OPTION_NAME, 8, '', false);
 
         // set transient to redirect to settings page
         set_transient('registration_login_activation_redirect', true, 30);
