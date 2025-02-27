@@ -2,7 +2,7 @@
 
 
 /**
- * This class used to handle the link navigation, and captures wp login and registration page navigations
+ * This class used to handle the link navigation, and captures wp login and registration, password reset page navigations
  */
 
 class LinkDirectionHandler {
@@ -20,7 +20,7 @@ class LinkDirectionHandler {
         global $pagenow;
 
         // handle default WordPress registration page
-        if( 'wp-login.php' == $pagenow  && !is_user_logged_in() && isset($_GET['action']) && $_GET['action'] == 'register') {
+        if( 'wp-login.php' == $pagenow && isset($_GET['action']) && $_GET['action'] == 'register') {
 
             // if the option is enabled to disable the default wordpress registration page
             if(get_option(DISABLE_DEFAULT_REGISTRATION_URL_OPTION_NAME)) {
@@ -47,7 +47,7 @@ class LinkDirectionHandler {
         }
 
         // handle default WordPress login page, other url parameters should be null
-        if( 'wp-login.php' == $pagenow  && !is_user_logged_in() && !isset($_GET['action'])) {
+        if( 'wp-login.php' == $pagenow && !isset($_GET['action'])) {
 
             // if the option is enabled to disable the default WordPress login page
             if(get_option(DISABLE_WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME)) {
@@ -73,6 +73,68 @@ class LinkDirectionHandler {
             }
 
         }
+
+        // handle the default WordPress password reset page
+        if( 'wp-login.php' == $pagenow && isset($_GET['action']) && $_GET['action'] == 'lostpassword') {
+
+            // if the option is enabled to disable the default WordPress password reset page
+            if(get_option(DISABLE_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME)) {
+
+                // access to the WORDPRESS_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME option and match
+                //if any page is set and page is accessible
+                $password_reset_page_id = get_option(WORDPRESS_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME);
+
+                // get the page by page id
+                $page = get_post($password_reset_page_id);
+
+                // if the page is not null
+                if ($page) {
+
+                    // check if shortcode called 'password_recovery_form' is present in the page
+                    if($this->isPageContainsShortcode($password_reset_page_id, 'password_recovery_form')) {
+                        // redirect to the page
+                        wp_redirect(get_permalink($password_reset_page_id));
+                        exit();
+                    }
+                }
+            }
+
+        }
+
+        // handle the default WordPress password set page, this following parameter needed: login, key, action should be rp
+        if( 'wp-login.php' == $pagenow && isset($_GET['key']) && isset($_GET['login']) && isset($_GET['action']) && $_GET['action'] == 'rp') {
+
+            // if the option is enabled to disable the default WordPress password set page
+            if(get_option(DISABLE_DEFAULT_PASSWORD_SET_URL_OPTION_NAME)) {
+
+                // access to the WORDPRESS_DEFAULT_PASSWORD_SET_URL_OPTION_NAME option and match
+                //if any page is set and the page is accessible
+                $password_set_page_id = get_option(WORDPRESS_DEFAULT_PASSWORD_SET_URL_OPTION_NAME);
+
+                // get the page by page id
+                $page = get_post($password_set_page_id);
+
+                // if the page is not null
+                if ($page) {
+
+                    // check if shortcode called 'set_user_password_form' is present in the page
+                    if($this->isPageContainsShortcode($password_set_page_id, 'set_user_password_form')) {
+                        // redirect to the page
+
+                        $password_set_page_link = get_permalink($password_set_page_id);
+
+                        // add the login and key to the link, and action
+                        $password_set_page_link = add_query_arg(array('login' => $_GET['login'], 'key' => $_GET['key'], 'action' => 'rp'), $password_set_page_link);
+
+                        wp_redirect($password_set_page_link);
+
+                        exit();
+                    }
+                }
+            }
+
+        }
+
     }
 
 
