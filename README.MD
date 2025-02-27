@@ -9,8 +9,10 @@ This plugin is perfect if you want a robust user registration and login system w
 This plugin now offers anti-spam features, such as blacklisting usernames, blocklisting email domains, 
 whitelist email domains, and blocklisting signup from known disposable email domains.
 
+This plugin is well tested, and if you find any issues, please let us know.
+
 This plugin now offers override default WordPress login and registration pages,
-you can use the same shortcode [register_form] or [login_form]
+you can use the same shortcode [register_form], [login_form], [password_recovery_form], and [set_user_password_form]
 to override the default WordPress login and registration pages.
 Check the settings for more details.
 Password reset and password change pages are also ongoing development, soon support will be added.
@@ -25,7 +27,7 @@ That's it! You can now start using the plugin on your website.
 how to embed forms in your website:
 1. Install the plugin
 2. Create a new page or post
-3. Add the shortcode [register_form] or [login_form] to the page or post
+3. Add the shortcode any of them or together [register_form], [login_form], [password_recovery_form], [set_user_password_form] to the page or post
 4. Publish the page or post
 5. The form will now be displayed on your website
 
@@ -42,6 +44,7 @@ The list of customizable options includes:
 - Blocklisting signup from known disposable email domains according to the list from this file `user-registration-login/assets/file/disposable_email_blocklist.conf`
 - Allow signup from specific email domains (Whitelist email domains)
 - Override default WordPress login and registration pages
+- Override default WordPress password recovery and password change pages
 
 
 Note: if your theme has custom CSS for input fields, you can disable the plugin CSS and js for input fields styling, 
