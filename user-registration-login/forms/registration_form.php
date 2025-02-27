@@ -14,25 +14,30 @@ add_action('init', 'add_new_user');
 function registration_form()
 {
 
-    // if user isn't logged in
-    if (!is_user_logged_in()) {
+    require_once plugin_dir_path(__FILE__) . '../utilities/privilage_check.php';
 
-        // if registration is enabled
-        if (get_option('users_can_register')) {
-            $output = registration_fields();
-        } else {
-            return 'Registration is currently disabled. Contact the site administrator for more information.';
-        }
-
-        return $output;
+    if (user_has_edit_page_and_post_privileges()) {
+        return registration_fields(true);
     } else {
-        return 'You are already registered and logged in';
-    }
 
+        // if user logged not logged in
+        if (!is_user_logged_in()) {
+            // if registration is enabled
+            if (get_option('users_can_register')) {
+                $output = registration_fields();
+            } else {
+                return 'Registration is currently disabled. Contact the site administrator for more information.';
+            }
+
+            return $output;
+        } else {
+            return 'You are already registered and logged in';
+        }
+    }
 
 }
 
-function registration_fields()
+function registration_fields($previewing = false): string
 {
 
     ob_start(); ?>
@@ -50,21 +55,25 @@ function registration_fields()
 
         <fieldset style="border: 0">
 
+            <?php if ($previewing) { ?>
+                <div class="input-container">
+                    <p><?php _e('Previewing the registration form, this text will be hidden when you left editing.') ?></p>
+                </div>
+            <?php } ?>
+
             <div class="input-container">
-                <label class="label" for="username">
+                <label class="label" for="ureglogin_username">
                     <div class="text"><?php _e('Username') ?></div>
                 </label>
-                <input type="text" id="username" name="username" value="" materialize="true"
-                       aria-labelledby="label-fname"/>
+                <input type="text" id="ureglogin_username" name="ureglogin_username" value=""/>
             </div>
 
             <div class="input-container">
-                <label class="label" for="email">
+                <label class="label" for="ureglogin_email">
                     <div class="text"><?php _e('Email') ?></div>
                 </label>
 
-                <input type="text" id="email" name="email" value="" materialize="true"
-                       aria-labelledby="label-fname"/>
+                <input type="text" id="ureglogin_email" name="ureglogin_email" value="" />
             </div>
 
             <!-- include recaptcha if the recaptcha test is passed -->
@@ -78,7 +87,7 @@ function registration_fields()
             <p>
                 <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('registration-csrf'); ?>"/>
 
-                <button type="submit" name="submit" class="submit-button"><?php _e('Create Account'); ?></button>
+                <button type="ureglogin_submit" name="ureglogin_submit" class="submit-button"><?php _e('Create Account'); ?></button>
 
             </p>
 
@@ -95,19 +104,31 @@ function registration_fields()
 // handle registration form submission
 function add_new_user()
     {
-        if (isset($_POST['username']) && isset($_POST['email']) && isset($_POST['_csrf'])) {
+        if (isset($_POST['ureglogin_username']) && isset($_POST['ureglogin_email']) && isset($_POST['_csrf']) && !is_user_logged_in()) {
 
             // verify nonce
             if (!wp_verify_nonce($_POST['_csrf'], 'registration-csrf')) {
                 die('Security check failed');
             }
 
-            // get the recaptcha option value
-            getTheRecaptchaOptionValue();
+            require_once plugin_dir_path(__FILE__) . '../utilities/recaptcha_verify.php';
+
+            // get recaptcha response
+            $recaptcha_response = $_POST['g-recaptcha-response'] ?? null;
+
+            // verify recaptcha
+            $recaptcha_verified = test_recaptcha_submission_with_site_options($recaptcha_response);
+
+            if (!$recaptcha_verified) {
+                registration_login_errors()->add('recaptcha_failed', 'Recaptcha verification failed');
+
+                return;
+            }
+
 
             // sanitize user input
-            $username = sanitize_user($_POST['username'], true);
-            $email = sanitize_email($_POST['email']);
+            $username = sanitize_user($_POST['ureglogin_username'], true);
+            $email = sanitize_email($_POST['ureglogin_email']);
 
             if (!validate_username($username)) {
                 registration_login_errors()->add('username_invalid', 'Invalid username');
@@ -147,10 +168,6 @@ function add_new_user()
             // test if the setting is enabled for disposable email domains
             if (get_option(VERIFY_DISPOSABLE_EMAIL_DOMAINS_OPTION_NAME) === '1') {
 
-                // check if username or email is blacklisted
-                require_once plugin_dir_path(__FILE__) . '../verifier/verify_blocklisted_username_emails.php';
-
-                $blacklist_verifier = new VerifyBlocklistedUsernameEmails();
                 $isBlacklisted = $blacklist_verifier->isDisposableEmail($email);
 
                 if ($isBlacklisted) {
@@ -165,8 +182,6 @@ function add_new_user()
 
                 registration_login_errors()->add('username_exists', 'Username already exists');
             }
-
-            $password = wp_generate_password();
 
             // This is required to create a user
             require_once(ABSPATH . WPINC . '/registration.php');
@@ -197,11 +212,12 @@ function add_new_user()
 
                 }
 
+                $password = wp_generate_password();
 
                 // insert user
                 $default_new_user = array(
                     'user_login' => $username,
-                    'user_pass' => wp_hash_password($password),
+                    'user_pass' => $password,
                     'user_email' => $email,
                     'user_registered' => date('Y-m-d H:i:s'),
                     'role' => get_option(USER_ROLE_OPTION_NAME)
@@ -210,8 +226,6 @@ function add_new_user()
                 $user_id = wp_insert_user($default_new_user);
 
                 if ($user_id && !is_wp_error($user_id)) {
-                    // send email to user
-                    //wp_new_user_notification($user_id, null, 'user');
 
                     // send email to admin and user if the option is enabled
                     if (get_option(SEND_REGISTRATION_EMAIL_TO_ADMIN_OPTION_NAME)) {
@@ -234,37 +248,4 @@ function add_new_user()
 
 }
 
-/**
- * @return void
- */
-function getTheRecaptchaOptionValue(): void
-{
-    $recaptcha_verified = get_option(RECAPTCHA_VERIFIED_OPTION_NAME);
 
-    if ($recaptcha_verified) {
-
-
-        if(!isset($_POST['g-recaptcha-response'])) {
-            registration_login_errors()->add('recaptcha_failed', 'Recaptcha verification failed');
-
-            return;
-        }
-        // verify recaptcha
-
-        $recaptcha_response = $_POST['g-recaptcha-response'];
-
-
-        // test if recaptcha_response is empty
-        if (empty($recaptcha_response)) {
-            registration_login_errors()->add('recaptcha_failed', 'Recaptcha verification failed');
-        } else {
-
-            $recaptcha_verify = new RecaptchaVerify();
-            $is_test_successful = $recaptcha_verify->verifyResponse($recaptcha_response);
-
-            if (!$is_test_successful) {
-                registration_login_errors()->add('recaptcha_failed', 'Recaptcha verification failed');
-            }
-        }
-    }
-}
