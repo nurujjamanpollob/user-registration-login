@@ -37,7 +37,7 @@ function recaptcha_test()
         <a href="<?php echo admin_url('admin.php?page=user-registration-login-settings'); ?>">Settings Page</a>
         <br>
         <br>
-        <form method="post"  id="recaptcha-test-form" action="">
+        <form method="post"  id="ureglogin_recaptcha-test-form" action="">
             <div class="g-recaptcha" data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
             <br>
             <input type="submit" name="submit" value="Submit">
