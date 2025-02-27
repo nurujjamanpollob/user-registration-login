@@ -1,9 +1,9 @@
 <?php
 
 /*
- * Plugin Name:       User Registration & Login
- * Plugin URI:        https://eazewebit.com
- * Description:       This plugin allows you to show WordPress user registration form, login form and user profile in the frontend of your website.
+ * Plugin Name: User Registration & Login
+ * Plugin URI: https://eazewebit.com
+ * Description: This plugin allows you to show WordPress user registration form, login form and user profile in the frontend of your website.
  * Version:           2.1.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
@@ -23,6 +23,9 @@ require_once plugin_dir_path(__FILE__) . 'utilities/link_direction_handler.php';
 require_once plugin_dir_path(__FILE__) . 'forms/registration_form.php';
 require_once plugin_dir_path(__FILE__) . 'forms/registration_login_errors.php';
 require_once plugin_dir_path(__FILE__) . 'forms/login_form.php';
+require_once plugin_dir_path(__FILE__) . 'forms/password_recovery_form.php';
+require_once plugin_dir_path(__FILE__) . 'forms/set_user_password_form.php';
+
 
 // Handle link direction
 new LinkDirectionHandler();
@@ -107,7 +110,7 @@ function registration_login_settings_link($links)
 $plugin = plugin_basename(__FILE__);
 add_filter("plugin_action_links_$plugin", 'registration_login_settings_link');
 
-// add shortcodes page link to plugin page
+// add a shortcodes page link to plugin page
 function registration_login_shortcodes_link($links)
 {
     $shortcodes_link = '<a href="admin.php?page=' . SHORTCODES_PAGE_SLUG . '">' . __('Shortcodes') . '</a>';
