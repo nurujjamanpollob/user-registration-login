@@ -63,3 +63,17 @@ const WORDPRESS_DEFAULT_REGISTRATION_URL_OPTION_NAME = 'user_registration_login_
 
 // captcha verified option name
 const RECAPTCHA_VERIFIED_OPTION_NAME = 'user_registration_login_captcha_verified';
+// wordpress disable default password reset url option name
+const DISABLE_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME = 'user_registration_login_disable_default_password_reset_url';
+
+// wordpress default password reset url option name
+const WORDPRESS_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME = 'user_registration_login_wordpress_default_password_reset_url';
+
+// wordpress disable default password set url option name
+const DISABLE_DEFAULT_PASSWORD_SET_URL_OPTION_NAME = 'user_registration_login_disable_default_password_set_url';
+
+// wordpress default password set url option name
+const WORDPRESS_DEFAULT_PASSWORD_SET_URL_OPTION_NAME = 'user_registration_login_wordpress_default_password_set_url';
+
+// password minimum length option name
+const PASSWORD_MINIMUM_LENGTH_OPTION_NAME = 'user_registration_login_password_minimum_length';
