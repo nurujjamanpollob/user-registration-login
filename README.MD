@@ -11,11 +11,11 @@ whitelist email domains, and blocklisting signup from known disposable email dom
 
 This plugin is well tested, and if you find any issues, please let us know.
 
-This plugin now offers override default WordPress login and registration pages,
-you can use the same shortcode [register_form], [login_form], [password_recovery_form], and [set_user_password_form]
-to override the default WordPress login and registration pages.
+This plugin now offers override default WordPress login and registration pages, password reset and password change pages.
+You can use the same shortcode [register_form], [login_form], [password_recovery_form], and [set_user_password_form]
+to override the default WordPress login and registration pages, password reset and password change pages
 Check the settings for more details.
-Password reset and password change pages are also ongoing development, soon support will be added.
+
 
 How to get started:
 1. Download the plugin zip file 'user-registration-login.zip'
