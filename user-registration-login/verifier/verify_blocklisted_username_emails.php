@@ -26,8 +26,10 @@ class VerifyBlocklistedUsernameEmails
         $blocklisted_username_str = get_option(BLACKLISTED_USERNAMES_OPTION_NAME);
         $blocklisted_email_str = get_option(BLACKLISTED_EMAIL_DOMAINS_OPTION_NAME);
 
-        $this->blocklisted_usernames = $this->stringToArray($blocklisted_username_str);
-        $this->blocklisted_email_domains = $this->stringToArray($blocklisted_email_str);
+        $this->blocklisted_usernames = $this->separateString($blocklisted_username_str);
+        // do blocklisted email domains contain line breaks or seperated by space?
+        $this->blocklisted_email_domains = $this->separateString($blocklisted_email_str);
+
     }
 
     /**
@@ -81,16 +83,6 @@ class VerifyBlocklistedUsernameEmails
     }
 
     /**
-     * Convert line break string to array
-     * @param $string
-     * @return array
-     */
-    public static function stringToArray($string): array
-    {
-        return explode("\n", $string);
-    }
-
-    /**
      * Verify disposable email domain
      * @param $email
      * @return bool
@@ -98,5 +90,15 @@ class VerifyBlocklistedUsernameEmails
     public function isDisposableEmail($email): bool
     {
         return (new DisposableEmailVerifier)->isDisposableEmail($email);
+    }
+
+    /**
+     * Separate string by space or new line
+     * @param $string
+     * @return array
+     */
+    private function separateString($string): array
+    {
+        return preg_split('/\s+/', $string);
     }
 }
