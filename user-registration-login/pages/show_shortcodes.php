@@ -21,6 +21,15 @@ function showShortCodes()
                 <th scope="row">Login Form</th>
                 <td><input type="text" value="[login_form]" readonly /></td>
             </tr>
+
+            <tr valign="top">
+                <th scope="row">Password Reset Form</th>
+                <td><input type="text" value="[password_recovery_form]" readonly /></td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">Set User Password Form</th>
+                <td><input type="text" value="[set_user_password_form]" readonly /></td>
+            </tr>
         </table>
     </div>
     <?php
