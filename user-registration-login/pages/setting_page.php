@@ -29,7 +29,14 @@ function check_shortcode() {
             !isset($_POST['loginPageId']) ||
             !isset($_POST['loginShortCodeName']) ||
             !isset($_POST['registrationPageOverrideEnabled']) ||
-            !isset($_POST['loginPageOverrideEnabled'])
+            !isset($_POST['loginPageOverrideEnabled']) ||
+            !isset($_POST['passwordResetPageId']) ||
+            !isset($_POST['passwordResetShortCodeName']) ||
+            !isset($_POST['passwordResetPageOverrideEnabled']) ||
+            !isset($_POST['passwordSetPageId']) ||
+            !isset($_POST['passwordSetPageShortCodeName']) ||
+            !isset($_POST['passwordSetPageOverrideEnabled']) ||
+            !isset($_POST['action'])
     ) {
         echo json_encode(array('registrationShortCodeCheck' => 'false', 'loginShortCodeCheck' => 'false'));
         wp_die();
@@ -42,6 +49,12 @@ function check_shortcode() {
     $loginShortCodeName = $_POST['loginShortCodeName'];
     $registrationPageOverrideEnabled = $_POST['registrationPageOverrideEnabled'];
     $loginPageOverrideEnabled = $_POST['loginPageOverrideEnabled'];
+    $passwordResetPageId = $_POST['passwordResetPageId'];
+    $passwordResetShortCodeName = $_POST['passwordResetShortCodeName'];
+    $passwordResetPageOverrideEnabled = $_POST['passwordResetPageOverrideEnabled'];
+    $passwordSetPageId = $_POST['passwordSetPageId'];
+    $passwordSetPageShortCodeName = $_POST['passwordSetPageShortCodeName'];
+    $passwordSetPageOverrideEnabled = $_POST['passwordSetPageOverrideEnabled'];
 
     // perform the shortcode check
     require_once plugin_dir_path(__FILE__) . '../utilities/link_direction_handler.php';
@@ -61,11 +74,31 @@ function check_shortcode() {
     } else {
         $loginShortCodeCheck = true;
     }
+
+    if($passwordResetPageOverrideEnabled === 'true') {
+        $passwordResetShortCodeCheck = LinkDirectionHandler::isPageContainsShortcode($passwordResetPageId, $passwordResetShortCodeName);
+    } else {
+        $passwordResetShortCodeCheck = true;
+    }
+
+    if($passwordSetPageOverrideEnabled === 'true') {
+        $passwordSetShortCodeCheck = LinkDirectionHandler::isPageContainsShortcode($passwordSetPageId, $passwordSetPageShortCodeName);
+    } else {
+        $passwordSetShortCodeCheck = true;
+    }
+
+
     // add the registration shortcode check result to the response
     $response['registrationShortCodeCheck'] = $registrationShortCodeCheck ? 'true' : 'false';
 
     // add the login shortcode check result to the response
     $response['loginShortCodeCheck'] = $loginShortCodeCheck ? 'true' : 'false';
+
+    // add the password reset shortcode check result to the response
+    $response['passwordResetShortCodeCheck'] = $passwordResetShortCodeCheck ? 'true' : 'false';
+
+    // add the password set shortcode check result to the response
+    $response['passwordSetShortCodeCheck'] = $passwordSetShortCodeCheck ? 'true' : 'false';
 
     // send the response
     echo json_encode($response);
@@ -119,6 +152,11 @@ function register_user_login_settings()
     register_setting('user-login-settings-group', WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME);
     register_setting('user-login-settings-group', WORDPRESS_DEFAULT_REGISTRATION_URL_OPTION_NAME);
     register_setting('user-login-settings-group', DISABLE_DEFAULT_REGISTRATION_URL_OPTION_NAME);
+    register_setting('user-login-settings-group', DISABLE_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME);
+    register_setting('user-login-settings-group', WORDPRESS_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME);
+    register_setting('user-login-settings-group', DISABLE_DEFAULT_PASSWORD_SET_URL_OPTION_NAME);
+    register_setting('user-login-settings-group', WORDPRESS_DEFAULT_PASSWORD_SET_URL_OPTION_NAME);
+    register_setting('user-login-settings-group', PASSWORD_MINIMUM_LENGTH_OPTION_NAME);
 }
 
 
@@ -144,6 +182,11 @@ function registration_login_page()
 
                     const registrationPageOverrideEnabled = document.getElementsByName('<?php echo DISABLE_DEFAULT_REGISTRATION_URL_OPTION_NAME; ?>')[0].checked ? 'true' : 'false';
                     const loginPageOverrideEnabled = document.getElementsByName('<?php echo DISABLE_WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME; ?>')[0].checked ? 'true' : 'false';
+                    const passwordResetPageOverrideEnabled = document.getElementsByName('<?php echo DISABLE_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME; ?>')[0].checked ? 'true' : 'false';
+                    const passwordResetPageId = document.getElementsByName('<?php echo WORDPRESS_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME; ?>')[0].value;
+                    const passwordSetPageOverrideEnabled = document.getElementsByName('<?php echo DISABLE_DEFAULT_PASSWORD_SET_URL_OPTION_NAME; ?>')[0].checked ? 'true' : 'false';
+                    const passwordSetPageId = document.getElementsByName('<?php echo WORDPRESS_DEFAULT_PASSWORD_SET_URL_OPTION_NAME; ?>')[0].value;
+
 
                     // submit to wp ajax
                     jQuery.ajax({
@@ -156,21 +199,25 @@ function registration_login_page()
                             loginPageId: loginPageId,
                             loginShortCodeName: 'login_form',
                             registrationPageOverrideEnabled: registrationPageOverrideEnabled,
-                            loginPageOverrideEnabled: loginPageOverrideEnabled
+                            loginPageOverrideEnabled: loginPageOverrideEnabled,
+                            passwordResetPageOverrideEnabled: passwordResetPageOverrideEnabled,
+                            passwordResetPageId: passwordResetPageId,
+                            passwordResetShortCodeName: 'password_recovery_form',
+                            passwordSetPageOverrideEnabled: passwordSetPageOverrideEnabled,
+                            passwordSetPageId: passwordSetPageId,
+                            passwordSetPageShortCodeName: 'set_user_password_form'
+
                         },
                         success: function (response) {
 
                             // we need to check both registration and login shortcode response is true
                             const responseObj = JSON.parse(response);
 
-                            // log the response
-                            console.log(responseObj);
 
                             // check if both registration and login shortcodes are true
-                            if (responseObj.registrationShortCodeCheck === 'true' && responseObj.loginShortCodeCheck === 'true') {
+                            if (responseObj.registrationShortCodeCheck === 'true' && responseObj.loginShortCodeCheck === 'true' && responseObj.passwordResetShortCodeCheck === 'true' && responseObj.passwordSetShortCodeCheck === 'true') {
 
                                 HTMLFormElement.prototype.submit.call(form);
-
 
 
                             } else {
@@ -191,7 +238,17 @@ function registration_login_page()
                                     errorMessage += '<span class="error"><b>Error:</b> Login page does not contain the shortcode [login_form]. Please add the shortcode to the page and try again.</span>';
                                 }
 
+                                // check if password reset shortcode is false
+                                if (responseObj.passwordResetShortCodeCheck === 'false') {
+                                    errorMessage += '<span class="error"><b>Error:</b> Password reset page does not contain the shortcode [password_recovery_form]. Please add the shortcode to the page and try again.</span>';
+                                }
 
+                                // check if password set shortcode is false
+                                if (responseObj.passwordSetShortCodeCheck === 'false') {
+                                    errorMessage += '<span class="error"><b>Error:</b> Password set page does not contain the shortcode [set_user_password_form]. Please add the shortcode to the page and try again.</span>';
+                                }
+
+                                // close the error div
                                 errorMessage += '</div>';
 
                                 createAndShowDialog('', errorMessage, null, [{text: 'Cancel', onClick: () => {closeDialog();}}]);
@@ -261,34 +318,69 @@ function registration_login_page()
                     This function works regardless of blacklist or whitelist settings!
                 </li>
                 <li>
-                    Disable WordPress Default Registration/Login URL: Disable WordPress default registration/login URL.
-                    If you enable this setting, the default WordPress registration/login URL will be disabled.
-                    Users will not be able to access the default WordPress registration/login URL.
-                    Instead, they will be redirected to the custom registration/login URL
-                    that you have set in the plugin settings.
-                    Do not do this
-                    if you don't have a custom page as a registration/login url which contains the registration/login
-                    form,
-                    and yet not set the custom registration/login URL in the plugin settings.
-                    You also need to make sure that reCaptcha is working properly.
+                    Disable WordPress Default Login Page:
+                    Disable WordPress default login Page.
+                    If you enable this setting, the default WordPress registration/login URL will be disabled,
+                    and request made to it will be redirected to the custom registration/login URL
+                    that you have set.
+                    You need to select a page that contains the login form, from the dropdown below.
                 </li>
                 <li>
-                    WordPress Default Login URL: The custom login URL that you want to set.
-                    If you disable the WordPress default login URL, you need to set a custom login URL here.
+                    WordPress Default Login Page: The custom login Page that you want to set.
+                    If you want to disable the WordPress default login URL, you need to set a custom login URL here.
                     This custom login URL should contain the login form.
-                    If you don't have a custom login URL, do not disable the WordPress default login URL.
+                    This setting is effective if you enable WordPress default login page.
 
-                    You can select the default WordPress login URL by choosing from the dropdown.
                 </li>
                 <li>
-                    WordPress Default Registration URL: The custom registration URL that you want to set.
-                    If you disable the WordPress default registration URL, you need to set a custom registration URL
-                    here.
-                    This custom registration URL should contain the registration form.
-                    If you don't have a custom registration URL, do not disable the WordPress default registration URL.
+                    Disable WordPress Default Registration Page:
+                    Disable WordPress default registration Page.
 
-                    You can select the default WordPress registration URL by choosing from the dropdown.
+                    If you enable this setting, the default WordPress registration URL will be disabled, and request made to it will be redirected to the custom registration URL that you have set.
+                    You need to select a page that contains the registration form, from the dropdown below.
                 </li>
+                <li>
+                    WordPress Default Registration Page: The custom registration Page that you want to set.
+                    If you want to disable the WordPress default registration URL,
+                    you need to set a custom registration URL here.
+                    This custom registration URL should contain the registration form.
+                    This setting is effective if you enable WordPress default registration page.
+                </li>
+
+                <li>
+                    Disable WordPress Default Password Reset Page:
+                    Disable WordPress default password reset Page.
+                    If you enable this setting, the default WordPress password reset URL will be disabled, and request made to it will be redirected to the custom password reset URL that you have set.
+                    You need to select a page that contains the password reset form, from the dropdown below.
+                </li>
+                <li>
+                    WordPress Default Password Reset Page: The custom password reset Page that you want to set.
+                    If you want to disable the WordPress default password reset URL,
+                    you need to set a custom password reset URL here.
+                    This custom password reset URL should contain the password reset form.
+                    This setting is effective if you enable WordPress default password reset page.
+                </li>
+
+                <li>
+                    Disable WordPress Default Password Set Page:
+                    Disable WordPress default password set Page.
+                    If you enable this setting, the default WordPress password set URL will be disabled, and request made to it will be redirected to the custom password set URL that you have set.
+                    You need to select a page that contains the password set form from the dropdown below.
+                </li>
+                <li>
+                    WordPress Default Password Set Page: The custom password set Page that you want to set.
+                    If you want to disable the WordPress default password set URL,
+                    you need to set a custom password set URL here.
+                    This custom password set URL should contain the password set form.
+                    This setting is effective if you enable WordPress default password set page.
+                </li>
+                <li>
+                    Password Minimum Length: The minimum length of the password.
+                    This setting is used to validate the password length during password reset
+                    or setting a new password,
+                    and effective only if the shortcode from this plugin is used.
+                </li>
+
             </ul>
 
             If you have any questions or need help,
@@ -398,7 +490,7 @@ function registration_login_page()
                 </tr>
 
                 <tr valign="top">
-                    <th scope="row">Disable WordPress Default Login URL</th>
+                    <th scope="row">Disable WordPress Default Login Page?</th>
                     <td>
                         <input type="checkbox" name="<?php echo DISABLE_WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME; ?>"
                                value="1" <?php echo get_option(DISABLE_WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME) === '1' ? 'checked' : ''; ?>>
@@ -408,7 +500,7 @@ function registration_login_page()
                 <!-- create a dropdown for the default login url,
                 a database query to get all pages and select the default page id -->
                 <tr valign="top">
-                    <th scope="row">WordPress Default Login URL</th>
+                    <th scope="row">Set Website Default Login Page</th>
                     <td>
                         <select name="<?php echo WORDPRESS_DEFAULT_LOGIN_URL_OPTION_NAME; ?>">
                             <option value="">Select a page</option>
@@ -425,7 +517,7 @@ function registration_login_page()
                 </tr>
 
                 <tr valign="top">
-                    <th scope="row">Disable WordPress Default Registration URL</th>
+                    <th scope="row">Disable WordPress Default Registration Page?</th>
                     <td>
                         <input type="checkbox" name="<?php echo DISABLE_DEFAULT_REGISTRATION_URL_OPTION_NAME; ?>"
                                value="1" <?php echo get_option(DISABLE_DEFAULT_REGISTRATION_URL_OPTION_NAME) === '1' ? 'checked' : ''; ?>>
@@ -433,7 +525,7 @@ function registration_login_page()
                 </tr>
 
                 <tr valign="top">
-                    <th scope="row">WordPress Default Registration URL</th>
+                    <th scope="row">Set Website Default Registration Page</th>
                     <td>
                         <select name="<?php echo WORDPRESS_DEFAULT_REGISTRATION_URL_OPTION_NAME; ?>">
                             <option value="">Select a page</option>
@@ -446,6 +538,65 @@ function registration_login_page()
                             }
                             ?>
                         </select>
+                    </td>
+                </tr>
+
+
+                <tr valign="top">
+                    <th scope="row">Disable WordPress Default Password Reset Page?</th>
+                    <td>
+                        <input type="checkbox" name="<?php echo DISABLE_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME; ?>"
+                               value="1" <?php echo get_option(DISABLE_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME) === '1' ? 'checked' : ''; ?>>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row">Set Website Default Password Reset Page</th>
+                    <td>
+                        <select name="<?php echo WORDPRESS_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME; ?>">
+                            <option value="">Select a page</option>
+                            <?php
+                            $pages = get_pages();
+                            foreach ($pages as $page) {
+                                ?>
+                                <option value="<?php echo $page->ID; ?>" <?php echo strval(get_option(WORDPRESS_DEFAULT_PASSWORD_RESET_URL_OPTION_NAME)) === strval($page->ID) ? 'selected' : ''; ?>><?php echo $page->post_title; ?></option>
+                                <?php
+                            }
+                            ?>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row">Disable WordPress Default Password Set Page?</th>
+                    <td>
+                        <input type="checkbox" name="<?php echo DISABLE_DEFAULT_PASSWORD_SET_URL_OPTION_NAME; ?>"
+                               value="1" <?php echo get_option(DISABLE_DEFAULT_PASSWORD_SET_URL_OPTION_NAME) === '1' ? 'checked' : ''; ?>>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row">Set Website Default Password Set Page</th>
+                    <td>
+                        <select name="<?php echo WORDPRESS_DEFAULT_PASSWORD_SET_URL_OPTION_NAME; ?>">
+                            <option value="">Select a page</option>
+                            <?php
+                            $pages = get_pages();
+                            foreach ($pages as $page) {
+                                ?>
+                                <option value="<?php echo $page->ID; ?>" <?php echo strval(get_option(WORDPRESS_DEFAULT_PASSWORD_SET_URL_OPTION_NAME)) === strval($page->ID) ? 'selected' : ''; ?>><?php echo $page->post_title; ?></option>
+                                <?php
+                            }
+                            ?>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row">Password Minimum Length (This setting is effective if you use this plugin to override default WordPress password set page) </th>
+                    <td>
+                        <input type="number" name="<?php echo PASSWORD_MINIMUM_LENGTH_OPTION_NAME; ?>"
+                               value="<?php echo get_option(PASSWORD_MINIMUM_LENGTH_OPTION_NAME); ?>"/>
                     </td>
                 </tr>
 
