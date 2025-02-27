@@ -12,7 +12,7 @@ class VerifyWhitelistedEmailDomains
     {
         $whitelisted_email_str = get_option(WHITELISTED_EMAIL_DOMAINS_OPTION_NAME);
 
-        $this->whitelisted_email_domains = $this->stringToArray($whitelisted_email_str);
+        $this->whitelisted_email_domains = $this->separateString($whitelisted_email_str);
     }
 
     /**
@@ -39,14 +39,13 @@ class VerifyWhitelistedEmailDomains
     }
 
     /**
-     * Convert a string to an array
-     * @param $str
+     * Separate string by space or new line
+     * @param $string
      * @return array
      */
-    private static function stringToArray($str): array
+    private function separateString($string): array
     {
-
-        return explode("\n", $str);
+        return preg_split('/\s+/', $string);
     }
 
 }
