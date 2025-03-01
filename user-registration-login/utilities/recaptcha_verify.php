@@ -12,10 +12,10 @@ require_once plugin_dir_path(__FILE__) . '../verifier/recaptcha_verify.php';
 /**
  * Handle recaptcha test submission needs recaptcha response
  * This method will return true if the recaptcha response is valid, otherwise false
- * @param $recaptcha_response string
+ * @param $recaptcha_response
  * @return bool
  */
-function test_recaptcha_submission_with_site_options(string $recaptcha_response): bool
+function test_recaptcha_submission_with_site_options($recaptcha_response): bool
 {
 
     // get site option
