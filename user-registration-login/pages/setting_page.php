@@ -116,18 +116,17 @@ function get_404_image():string {
 
 function registration_login_menu()
 {
-    //add_submenu_page('options-general.php', 'User Registration & Login', 'User Registration & Login', 'manage_options', REGISTRATION_LOGIN_MENU_SLUG, 'registration_login_page');
 
     // add menu page
     add_menu_page('User Registration & Login', 'User Login & Registration', 'manage_options', DASHBOARD_PAGE_SLUG, 'menu_dashboard_content');
 
-    // add sub menu page
+    // add submenu page
     add_submenu_page(DASHBOARD_PAGE_SLUG, 'Settings', 'Settings', 'manage_options', REGISTRATION_LOGIN_MENU_SETTINGS_SLUG, 'registration_login_page');
 
-    //add sub menu page
+    //add submenu page
     add_submenu_page(DASHBOARD_PAGE_SLUG, 'Shortcodes', 'Shortcodes', 'manage_options', SHORTCODES_PAGE_SLUG, 'showShortCodes');
 
-    // add sub menu page
+    // add submenu page
     add_submenu_page(DASHBOARD_PAGE_SLUG, 'Recaptcha Test', 'Recaptcha Test', 'manage_options', RECAPTCHA_TEST_PAGE_SLUG, 'recaptcha_test');
 
     //call register settings function

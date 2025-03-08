@@ -55,11 +55,50 @@ function registration_fields($previewing = false): string
 
         <fieldset style="border: 0">
 
-            <?php if ($previewing) { ?>
+            <?php if ($previewing && is_page_in_edit_mode($_GET)) { ?>
                 <div class="input-container">
                     <p><?php _e('Previewing the registration form, this text will be hidden when you left editing.') ?></p>
                 </div>
+
+                <div class="input-container">
+                    <label class="label" for="ureglogin_username">
+                        <div class="text"><?php _e('Username') ?></div>
+                    </label>
+                    <input type="text" id="ureglogin_username" name="ureglogin_username" value=""/>
+                </div>
+
+                <div class="input-container">
+                    <label class="label" for="ureglogin_email">
+                        <div class="text"><?php _e('Email') ?></div>
+                    </label>
+
+                    <input type="text" id="ureglogin_email" name="ureglogin_email" value="" />
+                </div>
+
+                <!-- include recaptcha if the recaptcha test is passed -->
+                <?php if (get_option(RECAPTCHA_VERIFIED_OPTION_NAME)) { ?>
+                    <div class="input-container">
+                        <div class="g-recaptcha"
+                             data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
+                    </div>
+                <?php } ?>
+
+                <p>
+                    <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('registration-csrf'); ?>"/>
+
+                    <button type="ureglogin_submit" name="ureglogin_submit" class="submit-button"><?php _e('Create Account'); ?></button>
+
+                </p>
+
             <?php } ?>
+
+            <?php if ($previewing && !is_page_in_edit_mode($_GET)) { ?>
+                <div class="input-container">
+                    <p><?php _e('Cannot register for an user account because you are already logged in!') ?></p>
+                </div>
+            <?php } ?>
+
+    <?php if (!$previewing) { ?>
 
             <div class="input-container">
                 <label class="label" for="ureglogin_username">
@@ -90,6 +129,8 @@ function registration_fields($previewing = false): string
                 <button type="ureglogin_submit" name="ureglogin_submit" class="submit-button"><?php _e('Create Account'); ?></button>
 
             </p>
+
+    <?php } ?>
 
 
         </fieldset>

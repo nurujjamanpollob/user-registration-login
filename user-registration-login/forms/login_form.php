@@ -39,46 +39,93 @@ function login_fields($preview = false)
     <form id="ureglogin_login_form" class="form" action="" method="POST">
         <fieldset style="border: 0">
 
-            <?php if ($preview) { ?>
+            <?php if ($preview && is_page_in_edit_mode($_GET)) { ?>
                 <div class="input-container">
                     <p><?php _e('Previewing the login form, this text will be hidden when you left editing.') ?></p>
                 </div>
-            <?php } ?>
 
-
-            <div class="input-container">
-                <label class="label" for="ureglogin_username">
-                    <div class="text"><?php _e('Username/Email') ?></div>
-                </label>
-                <input type="text" id="ureglogin_username" name="ureglogin_username" value=""/>
-            </div>
-
-            <div class="input-container">
-                <label class="label" for="ureglogin_password">
-                    <div class="text"><?php _e('Password') ?></div>
-                </label>
-                <input type="password" id="ureglogin_password" name="ureglogin_password" value=""/>
-            </div>
-
-            <!-- include recaptcha if the recaptcha test is passed -->
-            <?php if (get_option(RECAPTCHA_VERIFIED_OPTION_NAME)) { ?>
                 <div class="input-container">
-                    <div class="g-recaptcha"
-                         data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
+                    <label class="label" for="ureglogin_username">
+                        <div class="text"><?php _e('Username/Email') ?></div>
+                    </label>
+                    <input type="text" id="ureglogin_username" name="ureglogin_username" value=""/>
                 </div>
 
+                <div class="input-container">
+                    <label class="label" for="ureglogin_password">
+                        <div class="text"><?php _e('Password') ?></div>
+                    </label>
+                    <input type="password" id="ureglogin_password" name="ureglogin_password" value=""/>
+                </div>
+
+                <!-- include recaptcha if the recaptcha test is passed -->
+                <?php if (get_option(RECAPTCHA_VERIFIED_OPTION_NAME)) { ?>
+                    <div class="input-container">
+                        <div class="g-recaptcha"
+                             data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
+                    </div>
+
+                <?php } ?>
+
+                <div style="display: flex;" class="input-container">
+                    <input style="width: auto; margin-right: 10px;" type="checkbox" id="ureglogin_remember_me"
+                           name="ureglogin_remember_me" value="1" materialize="true"
+                           aria-labelledby="label-fname"/>
+                    <p><?php _e('Remember Me'); ?></p>
+                </div>
+
+                <p>
+                    <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('login-csrf'); ?>"/>
+                    <button type="submit" name="ureglogin_submit" class="submit-button"><?php _e('Login'); ?></button>
+                </p>
+
             <?php } ?>
 
-            <div style="display: flex;" class="input-container">
-                <input style="width: auto; margin-right: 10px;" type="checkbox" id="ureglogin_remember_me" name="ureglogin_remember_me" value="1" materialize="true"
-                       aria-labelledby="label-fname"/>
-                <p><?php _e('Remember Me'); ?></p>
-            </div>
+            <?php if ($preview && !is_page_in_edit_mode($_GET)) { ?>
+                <div class="input-container">
+                    <p><?php _e('Cannot log in because you are already logged in!') ?></p>
+                </div>
+            <?php } ?>
 
-            <p>
-                <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('login-csrf'); ?>"/>
-                <button type="submit" name="ureglogin_submit" class="submit-button"><?php _e('Login'); ?></button>
-            </p>
+            <?php if (!$preview) { ?>
+
+
+                <div class="input-container">
+                    <label class="label" for="ureglogin_username">
+                        <div class="text"><?php _e('Username/Email') ?></div>
+                    </label>
+                    <input type="text" id="ureglogin_username" name="ureglogin_username" value=""/>
+                </div>
+
+                <div class="input-container">
+                    <label class="label" for="ureglogin_password">
+                        <div class="text"><?php _e('Password') ?></div>
+                    </label>
+                    <input type="password" id="ureglogin_password" name="ureglogin_password" value=""/>
+                </div>
+
+                <!-- include recaptcha if the recaptcha test is passed -->
+                <?php if (get_option(RECAPTCHA_VERIFIED_OPTION_NAME)) { ?>
+                    <div class="input-container">
+                        <div class="g-recaptcha"
+                             data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
+                    </div>
+
+                <?php } ?>
+
+                <div style="display: flex;" class="input-container">
+                    <input style="width: auto; margin-right: 10px;" type="checkbox" id="ureglogin_remember_me"
+                           name="ureglogin_remember_me" value="1" materialize="true"
+                           aria-labelledby="label-fname"/>
+                    <p><?php _e('Remember Me'); ?></p>
+                </div>
+
+                <p>
+                    <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('login-csrf'); ?>"/>
+                    <button type="submit" name="ureglogin_submit" class="submit-button"><?php _e('Login'); ?></button>
+                </p>
+            <?php } ?>
+
         </fieldset>
     </form>
     <?php

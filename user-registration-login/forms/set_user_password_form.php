@@ -29,7 +29,6 @@ function get_user_set_password_form()
     $action = $_GET['action'] ?? '';
 
 
-
     // test if the user is logged in and can edit pages and posts
     if (user_has_edit_page_and_post_privileges()) {
         return set_user_password_form(true);
@@ -83,55 +82,106 @@ function set_user_password_form($preview = false)
     ?>
 
 
-
     <form id="set_user_password_form" class="form" action="" method="POST">
         <fieldset style="border: 0">
 
-            <?php if ($preview) { ?>
+            <?php if ($preview && is_page_in_edit_mode($_GET)) { ?>
                 <div class="input-container">
                     <p><?php _e('Previewing the set password form, this text will be hidden when you left editing.') ?></p>
                 </div>
+
+                <div class="input-container">
+                    <label class="label" for="ureglogin_username">
+                        <div class="text"><?php _e('Resetting Password For') ?></div>
+                    </label>
+                    <input style="background: antiquewhite;" type="text" id="ureglogin_username"
+                           name="ureglogin_username"
+                           value="iamusernameforpreviewing" disabled/>
+                </div>
+
+                <div class="input-container">
+                    <label class="label" for="ureglogin_password">
+                        <div class="text"><?php _e('Password') ?></div>
+                    </label>
+                    <input type="password" id="ureglogin_password" name="ureglogin_password" value=""/>
+                </div>
+
+                <div class="input-container">
+                    <label class="label" for="ureglogin_confirm_password">
+                        <div class="text"><?php _e('Confirm Password') ?></div>
+                    </label>
+                    <input type="password" id="ureglogin_confirm_password" name="ureglogin_confirm_password" value=""/>
+                </div>
+
+                <!-- include recaptcha if the recaptcha test is passed -->
+                <?php if (get_option(RECAPTCHA_VERIFIED_OPTION_NAME)) { ?>
+                    <div class="input-container">
+                        <div class="g-recaptcha"
+                             data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
+                    </div>
+                <?php } ?>
+
+                <p>
+                    <input type="hidden" name="ureglogin_login" value="<?php echo $login_user; ?>"/>
+                    <input type="hidden" name="ureglogin_key" value="<?php echo $key; ?>"/>
+                    <input type="hidden" name="ureglogin_action" value="<?php echo $action; ?>"/>
+                    <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('set-password-csrf'); ?>"/>
+                    <button type="submit" name="ureglogin_submit"
+                            class="submit-button"><?php _e('Set Password'); ?></button>
+                </p>
+
             <?php } ?>
 
-
-
-            <div class="input-container">
-                <label class="label" for="ureglogin_username">
-                    <div class="text"><?php _e('Resetting Password For') ?></div>
-                </label>
-                <input style="background: antiquewhite;" type="text" id="ureglogin_username" name="ureglogin_username"
-                       value="<?php echo $login_user; ?>" disabled/>
-            </div>
-
-            <div class="input-container">
-                <label class="label" for="ureglogin_password">
-                    <div class="text"><?php _e('Password') ?></div>
-                </label>
-                <input type="password" id="ureglogin_password" name="ureglogin_password" value=""/>
-            </div>
-
-            <div class="input-container">
-                <label class="label" for="ureglogin_confirm_password">
-                    <div class="text"><?php _e('Confirm Password') ?></div>
-                </label>
-                <input type="password" id="ureglogin_confirm_password" name="ureglogin_confirm_password" value="" />
-            </div>
-
-            <!-- include recaptcha if the recaptcha test is passed -->
-            <?php if (get_option(RECAPTCHA_VERIFIED_OPTION_NAME)) { ?>
+            <?php if ($preview && !is_page_in_edit_mode($_GET)) { ?>
                 <div class="input-container">
-                    <div class="g-recaptcha"
-                         data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
+                    <p><?php _e('Cannot set password for an user because you are already logged in!') ?></p>
                 </div>
             <?php } ?>
 
-            <p>
-                <input type="hidden" name="ureglogin_login" value="<?php echo $login_user; ?>"/>
-                <input type="hidden" name="ureglogin_key" value="<?php echo $key; ?>"/>
-                <input type="hidden" name="ureglogin_action" value="<?php echo $action; ?>"/>
-                <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('set-password-csrf'); ?>"/>
-                <button type="submit" name="ureglogin_submit" class="submit-button"><?php _e('Set Password'); ?></button>
-            </p>
+
+            <?php if (!$preview) { ?>
+
+
+                <div class="input-container">
+                    <label class="label" for="ureglogin_username">
+                        <div class="text"><?php _e('Resetting Password For') ?></div>
+                    </label>
+                    <input style="background: antiquewhite;" type="text" id="ureglogin_username"
+                           name="ureglogin_username"
+                           value="<?php echo $login_user; ?>" disabled/>
+                </div>
+
+                <div class="input-container">
+                    <label class="label" for="ureglogin_password">
+                        <div class="text"><?php _e('Password') ?></div>
+                    </label>
+                    <input type="password" id="ureglogin_password" name="ureglogin_password" value=""/>
+                </div>
+
+                <div class="input-container">
+                    <label class="label" for="ureglogin_confirm_password">
+                        <div class="text"><?php _e('Confirm Password') ?></div>
+                    </label>
+                    <input type="password" id="ureglogin_confirm_password" name="ureglogin_confirm_password" value=""/>
+                </div>
+
+                <!-- include recaptcha if the recaptcha test is passed -->
+                <?php if (get_option(RECAPTCHA_VERIFIED_OPTION_NAME)) { ?>
+                    <div class="input-container">
+                        <div class="g-recaptcha"
+                             data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
+                    </div>
+                <?php } ?>
+
+                <p>
+                    <input type="hidden" name="ureglogin_login" value="<?php echo $login_user; ?>"/>
+                    <input type="hidden" name="ureglogin_key" value="<?php echo $key; ?>"/>
+                    <input type="hidden" name="ureglogin_action" value="<?php echo $action; ?>"/>
+                    <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('set-password-csrf'); ?>"/>
+                    <button type="submit" name="ureglogin_submit"
+                            class="submit-button"><?php _e('Set Password'); ?></button>
+                </p>
+            <?php } ?>
         </fieldset>
     </form>
     <?php
@@ -144,13 +194,13 @@ add_action('init', 'set_user_password');
 function set_user_password()
 {
     if (
-            isset($_POST['ureglogin_password']) &&
-            isset($_POST['ureglogin_confirm_password']) &&
-            !is_user_logged_in() &&
-            isset($_POST['ureglogin_login']) &&
-            isset($_POST['ureglogin_key']) &&
-            isset($_POST['ureglogin_action']) &&
-            isset($_POST['_csrf'])
+        isset($_POST['ureglogin_password']) &&
+        isset($_POST['ureglogin_confirm_password']) &&
+        !is_user_logged_in() &&
+        isset($_POST['ureglogin_login']) &&
+        isset($_POST['ureglogin_key']) &&
+        isset($_POST['ureglogin_action']) &&
+        isset($_POST['_csrf'])
     ) {
 
 
@@ -230,6 +280,7 @@ function set_user_password()
         }
     }
 }
+
 
 
 

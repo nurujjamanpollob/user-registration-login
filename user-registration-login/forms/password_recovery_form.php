@@ -24,9 +24,8 @@ function password_recovery_form(): string
     }
 }
 
-function password_recovery_fields($previewing = false) : string
+function password_recovery_fields($previewing = false): string
 {
-
 
 
     ob_start(); ?>
@@ -44,31 +43,64 @@ function password_recovery_fields($previewing = false) : string
 
         <fieldset style="border: 0">
 
-            <?php if ($previewing) { ?>
+            <?php if ($previewing && is_page_in_edit_mode($_GET)) { ?>
                 <div class="input-container">
                     <p><?php _e('Previewing the password recovery form, this text will be hidden when you left editing.') ?></p>
                 </div>
+
+                <div class="input-container">
+                    <label class="label" for="ureglogin_username-password-reset">
+                        <div class="text"><?php _e('Username/Email') ?></div>
+                    </label>
+                    <input type="text" id="ureglogin_username-password-reset" name="ureglogin_username-password-reset"
+                           value=""/>
+                </div>
+
+                <!-- include recaptcha if the recaptcha test is passed -->
+                <?php if (get_option(RECAPTCHA_VERIFIED_OPTION_NAME)) { ?>
+                    <div class="input-container">
+                        <div class="g-recaptcha"
+                             data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
+                    </div>
+                <?php } ?>
+
+                <p>
+                    <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('password-recovery-csrf'); ?>"/>
+                    <button type="submit" name="submit" class="submit-button"><?php _e('Recover Password'); ?></button>
+                </p>
+
             <?php } ?>
 
-            <div class="input-container">
-                <label class="label" for="ureglogin_username-password-reset">
-                    <div class="text"><?php _e('Username/Email') ?></div>
-                </label>
-                <input type="text" id="ureglogin_username-password-reset" name="ureglogin_username-password-reset" value=""/>
-            </div>
-
-            <!-- include recaptcha if the recaptcha test is passed -->
-            <?php if (get_option(RECAPTCHA_VERIFIED_OPTION_NAME)) { ?>
+            <?php if ($previewing && !is_page_in_edit_mode($_GET)) { ?>
                 <div class="input-container">
-                    <div class="g-recaptcha"
-                         data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
+                    <p><?php _e('Cannot recover password because you are already logged in!') ?></p>
                 </div>
             <?php } ?>
 
-            <p>
-                <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('password-recovery-csrf'); ?>"/>
-                <button type="submit" name="submit" class="submit-button"><?php _e('Recover Password'); ?></button>
-            </p>
+            <?php if (!$previewing) { ?>
+
+                <div class="input-container">
+                    <label class="label" for="ureglogin_username-password-reset">
+                        <div class="text"><?php _e('Username/Email') ?></div>
+                    </label>
+                    <input type="text" id="ureglogin_username-password-reset" name="ureglogin_username-password-reset"
+                           value=""/>
+                </div>
+
+                <!-- include recaptcha if the recaptcha test is passed -->
+                <?php if (get_option(RECAPTCHA_VERIFIED_OPTION_NAME)) { ?>
+                    <div class="input-container">
+                        <div class="g-recaptcha"
+                             data-sitekey="<?php echo get_option(RECAPTCHA_SITE_KEY_OPTION_NAME); ?>"></div>
+                    </div>
+                <?php } ?>
+
+                <p>
+                    <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('password-recovery-csrf'); ?>"/>
+                    <button type="submit" name="submit" class="submit-button"><?php _e('Recover Password'); ?></button>
+                </p>
+            <?php } ?>
+
         </fieldset>
     </form>
 
@@ -80,7 +112,8 @@ function password_recovery_fields($previewing = false) : string
 /**
  * Handle form submission
  */
-function password_recovery_submission() {
+function password_recovery_submission()
+{
 
     // check if the form is submitted
     if (isset($_POST['ureglogin_username-password-reset']) && isset($_POST['_csrf']) && !is_user_logged_in()) {
