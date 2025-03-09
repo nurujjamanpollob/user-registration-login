@@ -18,6 +18,14 @@ function new_password_set_successful_page_output($user) {
 
         <style type="text/css">
 
+            header {
+                display: none;
+            }
+
+            footer {
+                display: none;
+            }
+
             .container {
                 display: flex;
                 flex-direction: column;

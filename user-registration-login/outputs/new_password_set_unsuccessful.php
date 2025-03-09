@@ -4,6 +4,7 @@
 function new_password_set_unsuccessful_page_output($reason = null)
 {
 
+
     echo get_new_password_set_unsuccessful_page_output_html($reason);
 
     exit;
@@ -27,7 +28,15 @@ function get_new_password_set_unsuccessful_page_output_html($reason = null): str
         
 
         <style type="text/css">
-
+        
+        
+            header {
+                display: none;
+             }
+        
+            footer {
+                display: none;
+            }
             .container {
                 display: flex;
                 flex-direction: column;

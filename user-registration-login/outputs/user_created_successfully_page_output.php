@@ -19,6 +19,14 @@ function user_created_successfully_page_output($username, $email)
 
         <style>
 
+            header {
+                display: none;
+            }
+
+            footer {
+                display: none;
+            }
+
             p {
                 max-width: 800px;
             }

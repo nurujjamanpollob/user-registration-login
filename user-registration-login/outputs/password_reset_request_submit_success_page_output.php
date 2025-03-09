@@ -14,6 +14,14 @@ function password_reset_request_submit_success_page_output($username): void
 
         <style type="text/css">
 
+            header {
+                display: none;
+            }
+
+            footer {
+                display: none;
+            }
+
             .container {
                 display: flex;
                 flex-direction: column;

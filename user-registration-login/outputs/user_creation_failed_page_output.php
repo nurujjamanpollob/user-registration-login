@@ -19,6 +19,14 @@ function user_creation_failed_page_output($username, $email)
 
         <style>
 
+            header {
+                display: none;
+            }
+
+            footer {
+                display: none;
+            }
+
             p {
                 max-width: 800px;
                 text-align: center;
