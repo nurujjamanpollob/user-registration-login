@@ -32,6 +32,8 @@ function recaptcha_test()
             Use the following form to test it if the recaptcha is working properly.
             The reCaptcha doesn't work in forms until you complete recaptcha test. <br>
 
+            To get recaptcha keys visit <a href="https://www.google.com/recaptcha/admin" target="_blank">https://www.google.com/recaptcha/admin</a>
+
             Current status: <?php echo get_option(RECAPTCHA_VERIFIED_OPTION_NAME) ? "<b style='color: green'>Verified</b>" : "<b style='color: red'>Not Verified</b>"; ?>
         </p> Make sure you have added the recaptcha keys in the settings page. <br>
         <a href="<?php echo admin_url('admin.php?page=user-registration-login-settings'); ?>">Settings Page</a>
