@@ -81,27 +81,32 @@ function login_fields($preview = false)
 
             <?php } ?>
 
+
+
+
             <?php if ($preview && !is_page_in_edit_mode($_GET)) { ?>
                 <div class="input-container">
                     <p><?php _e('Cannot log in because you are already logged in!') ?></p>
                 </div>
             <?php } ?>
 
+
+
             <?php if (!$preview) { ?>
 
 
                 <div class="input-container">
-                    <label class="label" for="ureglogin_username">
+                    <label class="label" for="ureglogin_login_username">
                         <div class="text"><?php _e('Username/Email') ?></div>
                     </label>
-                    <input type="text" id="ureglogin_username" name="ureglogin_username" value=""/>
+                    <input type="text" id="ureglogin_login_username" name="ureglogin_login_username" value=""/>
                 </div>
 
                 <div class="input-container">
-                    <label class="label" for="ureglogin_password">
+                    <label class="label" for="ureglogin_login_password">
                         <div class="text"><?php _e('Password') ?></div>
                     </label>
-                    <input type="password" id="ureglogin_password" name="ureglogin_password" value=""/>
+                    <input type="password" id="ureglogin_login_password" name="ureglogin_login_password" value=""/>
                 </div>
 
                 <!-- include recaptcha if the recaptcha test is passed -->
@@ -114,15 +119,14 @@ function login_fields($preview = false)
                 <?php } ?>
 
                 <div style="display: flex;" class="input-container">
-                    <input style="width: auto; margin-right: 10px;" type="checkbox" id="ureglogin_remember_me"
-                           name="ureglogin_remember_me" value="1" materialize="true"
-                           aria-labelledby="label-fname"/>
+                    <input style="width: auto; margin-right: 10px;" type="checkbox" id="ureglogin_login_remember_me"
+                           name="ureglogin_login_remember_me" value="1" materialize="true"/>
                     <p><?php _e('Remember Me'); ?></p>
                 </div>
 
                 <p>
                     <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('login-csrf'); ?>"/>
-                    <button type="submit" name="ureglogin_submit" class="submit-button"><?php _e('Login'); ?></button>
+                    <button type="submit" name="ureglogin_login_submit" class="submit-button"><?php _e('Login'); ?></button>
                 </p>
             <?php } ?>
 
@@ -135,7 +139,7 @@ function login_fields($preview = false)
 // handle login form submission
 function login_user()
 {
-    if (isset($_POST['ureglogin_username']) && isset($_POST['ureglogin_password']) && isset($_POST['_csrf']) && !is_user_logged_in()) {
+    if (isset($_POST['ureglogin_login_username']) && isset($_POST['ureglogin_login_password']) && isset($_POST['_csrf']) && !is_user_logged_in()) {
 
         // verify nonce
         if (!wp_verify_nonce($_POST['_csrf'], 'login-csrf')) {
@@ -157,8 +161,8 @@ function login_user()
         }
 
 
-        $username = sanitize_user($_POST['ureglogin_username']);
-        $password = $_POST['ureglogin_password'];
+        $username = sanitize_user($_POST['ureglogin_login_username']);
+        $password = $_POST['ureglogin_login_password'];
 
         $user = wp_authenticate($username, $password);
 
@@ -173,10 +177,10 @@ function login_user()
 
 
             // if remember me is checked
-            $is_remember_me_checked = $_POST['ureglogin_remember_me'] === '1';
+            if (isset($POST['ureglogin_login_remember_me'])) {
 
-            if ($is_remember_me_checked) {
                 wp_set_auth_cookie($user->ID, true);
+
             } else {
                 wp_set_auth_cookie($user->ID, false);
             }
