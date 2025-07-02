@@ -31,15 +31,16 @@ class WooCommerceLoginPageOverrider
                             var container = document.createElement('div');
                             container.innerHTML = <?php echo json_encode(do_shortcode('[login_form]')); ?>;
                             wc.appendChild(container);
-                        }
+                        } else {
 
-                        // wc not present, try to get any form, and replace it with the login form
-                        var form = document.querySelector('form');
-                        if (form) {
-                            form.innerHTML = '';
-                            var container = document.createElement('div');
-                            container.innerHTML = <?php echo json_encode(do_shortcode('[login_form]')); ?>;
-                            form.appendChild(container);
+                            // wc not present, try to get any form, and replace it with the login form
+                            var form = document.querySelector('form');
+                            if (form) {
+                                form.innerHTML = '';
+                                var container = document.createElement('div');
+                                container.innerHTML = <?php echo json_encode(do_shortcode('[login_form]')); ?>;
+                                form.appendChild(container);
+                            }
                         }
                     });
                 </script>
