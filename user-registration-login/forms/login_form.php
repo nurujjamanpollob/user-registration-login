@@ -17,7 +17,16 @@ function login_form()
         if (!is_user_logged_in()) {
             return login_fields();
         } else {
-            return 'You are already logged in';
+            // get current user info
+            $current_user = wp_get_current_user();
+            $display_name = $current_user->display_name ? $current_user->display_name : $current_user->user_login;
+            // return html with a text button to logout, text should be centered
+            return '<div style="text-align: center; margin-top: 20px;">
+                <p>' . sprintf(__('You are already logged in as %s! Not your account?'), esc_html($display_name)) . '</p>
+                <form style="display:inline;" action="' . wp_logout_url() . '" method="post">
+                    <button style="display:inline; background:none; border:none; color:#0073aa; text-decoration:underline; cursor:pointer; padding:0; font:inherit;" type="submit" class="submit-button">' . __('Logout') . '</button>
+                </form>
+            </div>';
         }
     }
 }
