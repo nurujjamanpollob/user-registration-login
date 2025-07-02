@@ -156,6 +156,7 @@ function register_user_login_settings()
     register_setting('user-login-settings-group', DISABLE_DEFAULT_PASSWORD_SET_URL_OPTION_NAME);
     register_setting('user-login-settings-group', WORDPRESS_DEFAULT_PASSWORD_SET_URL_OPTION_NAME);
     register_setting('user-login-settings-group', PASSWORD_MINIMUM_LENGTH_OPTION_NAME);
+    register_setting('user-login-settings-group', OVERRIDE_WOOCOMMERCE_LOGIN_PAGE_OPTION_NAME);
 }
 
 
@@ -379,6 +380,15 @@ function registration_login_page()
                     or setting a new password,
                     and effective only if the shortcode from this plugin is used.
                 </li>
+                <li>
+                    Override WooCommerce Login Page: If you have WooCommerce installed,
+                    this setting will override the WooCommerce login page for guests/non-logged-in users.
+                    This will replace the login form with the plugin login form shortcode.
+                    The shortcode used: [login_form]
+
+                    Please note that, the method follows the WooCommerce login page structure, so sometimes it may not work as expected with new WooCommerce updates.
+                    In that case, you should report the issue to us & disable this option, and we will fix it as soon as possible.
+                </li>
 
             </ul>
 
@@ -596,6 +606,14 @@ function registration_login_page()
                     <td>
                         <input type="number" name="<?php echo PASSWORD_MINIMUM_LENGTH_OPTION_NAME; ?>"
                                value="<?php echo get_option(PASSWORD_MINIMUM_LENGTH_OPTION_NAME); ?>"/>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row">Override WooCommerce Login Page?</th>
+                    <td>
+                        <input type="checkbox" name="<?php echo OVERRIDE_WOOCOMMERCE_LOGIN_PAGE_OPTION_NAME; ?>"
+                               value="1" <?php echo get_option(OVERRIDE_WOOCOMMERCE_LOGIN_PAGE_OPTION_NAME) === '1' ? 'checked' : ''; ?>>
                     </td>
                 </tr>
 

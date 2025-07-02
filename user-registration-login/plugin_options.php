@@ -77,3 +77,6 @@ const WORDPRESS_DEFAULT_PASSWORD_SET_URL_OPTION_NAME = 'user_registration_login_
 
 // password minimum length option name
 const PASSWORD_MINIMUM_LENGTH_OPTION_NAME = 'user_registration_login_password_minimum_length';
+
+// add option to override woocommerce login page with the plugin login page
+const OVERRIDE_WOOCOMMERCE_LOGIN_PAGE_OPTION_NAME = 'user_registration_login_override_woocommerce_login_page';
