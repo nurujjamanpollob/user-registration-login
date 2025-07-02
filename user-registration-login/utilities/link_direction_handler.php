@@ -65,8 +65,21 @@ class LinkDirectionHandler {
 
                     // check if shortcode called 'login_form' is present in the page
                     if($this->isPageContainsShortcode($login_page_id, 'login_form')) {
-                        // redirect to the page
-                        wp_redirect(get_permalink($login_page_id));
+
+                        // get the previous url: wp-admin.php, wp-login.php, etc, if the url getting null, add wp-admin as fallback
+                        $previous_url = wp_get_referer();
+                        if (!$previous_url) {
+                            $previous_url = isset($_SERVER['HTTP_REFERER']) ? esc_url_raw($_SERVER['HTTP_REFERER']) : '';
+                        }
+                        if (empty($previous_url)) {
+                            $previous_url = admin_url();
+                        }
+                        // redirect to the page, include the previous url as a query parameter
+                        $login_page_link = get_permalink($login_page_id);
+                        $login_page_link = add_query_arg('previous_url', urlencode($previous_url), $login_page_link);
+                        wp_redirect($login_page_link);
+
+                        // exit to stop the execution
                         exit();
                     }
                 }

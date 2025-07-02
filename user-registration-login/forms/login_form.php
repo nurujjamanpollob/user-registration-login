@@ -187,7 +187,17 @@ function login_user()
 
             wp_set_current_user($user->ID);
             do_action('wp_login', $user->user_login, $user);
-            wp_redirect(home_url());
+
+            // get previous_url if exists
+            $previous_url = isset($_GET['previous_url']) ? sanitize_text_field($_GET['previous_url']) : '';
+
+            // if previous_url is not empty, redirect to it
+            if (!empty($previous_url)) {
+                wp_redirect($previous_url);
+            } else {
+                // redirect to the home page
+                wp_redirect(home_url());
+            }
             exit;
         }
 
