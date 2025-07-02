@@ -1,4 +1,6 @@
-WordPress' user registration and login plugin. 
+
+WordPress' user registration and login plugin with reCaptcha and anti-spam features! <br>
+
 This plugin is a simple and easy to use plugin that allows you to add a user registration and login form to your website, 
 while provides security with Google reCaptcha, and anti-spam features.
 
@@ -14,7 +16,7 @@ This plugin is well tested, and if you find any issues, please let us know.
 This plugin now offers override default WordPress login and registration pages, password reset and password change pages.
 You can use the same shortcode [register_form], [login_form], [password_recovery_form], and [set_user_password_form]
 to override the default WordPress login and registration pages, password reset and password change pages
-Check the settings for more details.
+Check the settings for more details. With version 2.1.3 a new function been added to override the default woocommerce user login form, further raise security and prevent spam registrations.
 
 
 How to get started:
@@ -45,6 +47,7 @@ The list of customizable options includes:
 - Allow signup from specific email domains (Whitelist email domains)
 - Override default WordPress login and registration pages
 - Override default WordPress password recovery and password change pages
+- Override default WooCommerce user login form
 
 
 Note: if your theme has custom CSS for input fields, you can disable the plugin CSS and js for input fields styling, 
