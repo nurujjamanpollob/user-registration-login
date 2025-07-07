@@ -8,6 +8,15 @@ add_shortcode('register_form', 'registration_form');
 // add action hook
 add_action('init', 'add_new_user');
 
+// add wp_ajax rest api to dynamically fetch nonce at form submission
+add_action('wp_ajax_nopriv_generate_registration_csrf_token', 'generate_registration_csrf_token_ajax');
+add_action('wp_ajax_generate_registration_csrf_token', 'generate_registration_csrf_token_ajax');
+function generate_registration_csrf_token_ajax()
+{
+    echo wp_create_nonce('registration-csrf'); // Generate a fresh nonce.
+    wp_die(); // Properly terminate the AJAX request.
+}
+
 /**
  * This method creates the user registration form
  */
@@ -15,6 +24,18 @@ function registration_form()
 {
 
     require_once plugin_dir_path(__FILE__) . '../utilities/privilage_check.php';
+
+    // Only enqueue script if shortcode is rendered
+    wp_enqueue_script(
+        'ureglogin-registration-form',
+        plugin_dir_url(__FILE__) . '../assets/js/registration-form.js',
+        array('jquery'),
+        null,
+        true
+    );
+    wp_localize_script('ureglogin-registration-form', 'registrationFormAjax', array(
+        'ajax_url' => admin_url('admin-ajax.php')
+    ));
 
     if (user_has_edit_page_and_post_privileges()) {
         return registration_fields(true);
@@ -51,7 +72,7 @@ function registration_fields($previewing = false): string
     ?>
 
 
-    <form id="registration_form" class="form" action="" method="POST">
+    <form id="urlreglogin_registration_form" class="form" action="" method="POST">
 
         <fieldset style="border: 0">
 
@@ -124,9 +145,9 @@ function registration_fields($previewing = false): string
             <?php } ?>
 
             <p>
-                <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('registration-csrf'); ?>"/>
+                <input type="hidden" name="_csrf" value=""/>
 
-                <button type="ureglogin_submit" name="ureglogin_submit" class="submit-button"><?php _e('Create Account'); ?></button>
+                <button type="ureglogin_submit" name="ureglogin_register_submit" class="submit-button"><?php _e('Create Account'); ?></button>
 
             </p>
 

@@ -3,6 +3,17 @@
 // add shortcode for password recovery form
 add_shortcode('password_recovery_form', 'password_recovery_form');
 
+// add ajax rest api to dynamically fetch and set the CSRF token on form submission
+// for password recovery form
+add_action('wp_ajax_nopriv_generate_password_recovery_csrf_token', 'generate_password_recovery_csrf_token_ajax');
+add_action('wp_ajax_generate_password_recovery_csrf_token', 'generate_password_recovery_csrf_token_ajax');
+
+function generate_password_recovery_csrf_token_ajax()
+{
+    echo wp_create_nonce('password-recovery-csrf'); // Generate a fresh nonce.
+    wp_die(); // Properly terminate the AJAX request.
+}
+
 
 /**
  * This method creates the password recovery form
@@ -11,6 +22,14 @@ add_shortcode('password_recovery_form', 'password_recovery_form');
 function password_recovery_form(): string
 {
     require_once plugin_dir_path(__FILE__) . '../utilities/privilage_check.php';
+
+    // doing this because we don't want to load the script everywhere, only on the login form page
+    // ajax nonce generation, problem with caching plugins, so we need to generate a new nonce on each request when a new login form is submitted!
+    wp_enqueue_script('ureglogin-password-recovery-form', plugin_dir_url(__FILE__) . '../assets/js/password_recovery_form.js', array('jquery'), null, true);
+    wp_localize_script('ureglogin-password-recovery-form', 'pwdRecovery', array(
+        'ajax_url' => admin_url('admin-ajax.php')
+    ));
+
 
     if (user_has_edit_page_and_post_privileges()) {
         return password_recovery_fields(true);
@@ -78,7 +97,6 @@ function password_recovery_fields($previewing = false): string
             <?php } ?>
 
             <?php if (!$previewing) { ?>
-
                 <div class="input-container">
                     <label class="label" for="ureglogin_username-password-reset">
                         <div class="text"><?php _e('Username/Email') ?></div>
@@ -96,9 +114,10 @@ function password_recovery_fields($previewing = false): string
                 <?php } ?>
 
                 <p>
-                    <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('password-recovery-csrf'); ?>"/>
-                    <button type="submit" name="submit" class="submit-button"><?php _e('Recover Password'); ?></button>
+                    <input type="hidden" name="_csrf" value=""/>
+                    <button type="submit" name="ureglogin_passcode_recovery_submit" class="submit-button"><?php _e('Recover Password'); ?></button>
                 </p>
+
             <?php } ?>
 
         </fieldset>
