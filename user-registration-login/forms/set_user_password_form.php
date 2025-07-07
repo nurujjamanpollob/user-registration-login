@@ -13,12 +13,36 @@
 add_shortcode('set_user_password_form', 'get_user_set_password_form');
 require_once plugin_dir_path(__FILE__) . '../utilities/privilage_check.php';
 
+// add the wp_ajax to dynamically load the nonce when form is submitted for the set password form html
+add_action('wp_ajax_nopriv_generate_set_password_csrf_token', 'generate_set_password_csrf_token_ajax');
+// add the wp_ajax to dynamically load the nonce when form is submitted for the set password form html
+add_action('wp_ajax_generate_set_password_csrf_token', 'generate_set_password_csrf_token_ajax');
+
+function generate_set_password_csrf_token_ajax()
+{
+    echo wp_create_nonce('set-password-csrf'); // Generate a fresh nonce.
+    wp_die(); // Properly terminate the AJAX request.
+}
+
+
 /**
  * Display the form to set the user's password
  */
 
 function get_user_set_password_form()
 {
+
+    // Enqueue JS only when shortcode is rendered
+    wp_enqueue_script(
+        'ureglogin-set-user-password-form',
+        plugin_dir_url(__FILE__) . '../assets/js/set-user-password-form.js',
+        array('jquery'),
+        null,
+        true
+    );
+    wp_localize_script('ureglogin-set-user-password-form', 'setUserPasswordFormAjax', array(
+        'ajax_url' => admin_url('admin-ajax.php')
+    ));
 
 
     $get_404_image_url = plugin_dir_url(__FILE__) . '../assets/img/error_404.webp';
@@ -177,8 +201,8 @@ function set_user_password_form($preview = false)
                     <input type="hidden" name="ureglogin_login" value="<?php echo $login_user; ?>"/>
                     <input type="hidden" name="ureglogin_key" value="<?php echo $key; ?>"/>
                     <input type="hidden" name="ureglogin_action" value="<?php echo $action; ?>"/>
-                    <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('set-password-csrf'); ?>"/>
-                    <button type="submit" name="ureglogin_submit"
+                    <input type="hidden" name="_csrf" value=""/>
+                    <button type="submit" name="ureglogin_set_password_submit"
                             class="submit-button"><?php _e('Set Password'); ?></button>
                 </p>
             <?php } ?>
