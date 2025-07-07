@@ -128,20 +128,10 @@ function get_new_password_set_unsuccessful_page_output_html($reason = null): str
         <p>$reason</p>
 
 
-        <!-- get current page url, and empty the form, and reload the page -->
-        <button onclick="function reload_page() {
-
-            // get current url, and navigate to it
-            let current_url = window.location.href;
-
-            // create a hidden button element and click it
-            let hidden_button = document.createElement('a');
-            hidden_button.href = current_url;
-            hidden_button.click();
-
-
-        }
-        reload_page()">Try again</button>
+        <!-- reset password button -->
+        <a href="/wp-login.php?action=lostpassword" style="text-decoration:none;">
+        <button type="button">Go to password reset</button>
+        </a>
 
 
     </div>

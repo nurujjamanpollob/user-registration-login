@@ -26,7 +26,7 @@ function new_password_set_successful_page_output($user) {
                 display: none;
             }
 
-            .container {
+            .user-password-set-successful-container {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
@@ -108,7 +108,7 @@ function new_password_set_successful_page_output($user) {
 
     <body>
 
-    <div class="container">
+    <div class="user-password-set-successful-container">
 
         <img class="success_message_image" style=""
              src="<?php echo $new_password_set_successful_image_url ?>" alt="New password set successful image"/>

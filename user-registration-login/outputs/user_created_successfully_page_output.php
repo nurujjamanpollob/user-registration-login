@@ -100,6 +100,11 @@ function user_created_successfully_page_output($username, $email)
         <p>Thank you for registering with us. We have emailed you to <?php echo $email ?>. Please check your email and
             set a new password to access this website.</p>
 
+        <!-- Button to go to login page -->
+        <button style="background-color: #008080; color: white; border: none; border-radius: 5px; padding: 10px 20px; font-size: 16px; cursor: pointer;">
+            <a href="<?php echo wp_login_url(); ?>" style="color: white; text-decoration: none;">Go to Login</a>
+        </button>
+
     </div>
     </body>
     </html>
