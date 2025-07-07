@@ -4,11 +4,29 @@
 add_shortcode('login_form', 'login_form');
 add_action('init', 'login_user');
 
+function generate_csrf_token_ajax()
+{
+    echo wp_create_nonce('login-csrf'); // Generate a fresh nonce.
+    wp_die(); // Properly terminate the AJAX request.
+}
+
+// push js at the footer
+add_action('wp_ajax_nopriv_ureglogin_login_csrf_token', 'generate_csrf_token_ajax');
+add_action('wp_ajax_ureglogin_login_csrf_token', 'generate_csrf_token_ajax');
 function login_form()
 {
 
 
     require_once plugin_dir_path(__FILE__) . '../utilities/privilage_check.php';
+
+
+    // doing this because we don't want to load the script everywhere, only on the login form page
+    // ajax nonce generation, problem with caching plugins, so we need to generate a new nonce on each request when a new login form is submitted!
+    wp_enqueue_script('ureglogin-login-form', plugin_dir_url(__FILE__) . '../assets/js/login-form.js', array('jquery'), null, true);
+    wp_localize_script('ureglogin-login-form', 'loginFormAjax', array(
+        'ajax_url' => admin_url('admin-ajax.php')
+    ));
+
 
     if (user_has_edit_page_and_post_privileges()) {
         return login_fields(true);
@@ -134,9 +152,11 @@ function login_fields($preview = false)
                 </div>
 
                 <p>
-                    <input type="hidden" name="_csrf" value="<?php echo wp_create_nonce('login-csrf'); ?>"/>
-                    <button type="submit" name="ureglogin_login_submit" class="submit-button"><?php _e('Login'); ?></button>
+                    <input type="hidden" name="_csrf" value=""/>
+                    <button type="submit" name="ureglogin_login_submit"
+                            class="submit-button"><?php _e('Login'); ?></button>
                 </p>
+
             <?php } ?>
 
         </fieldset>
