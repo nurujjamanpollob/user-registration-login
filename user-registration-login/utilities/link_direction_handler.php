@@ -74,6 +74,16 @@ class LinkDirectionHandler {
                         if (empty($previous_url)) {
                             $previous_url = admin_url();
                         }
+                        // determine if the previous url is about setting a user password with key, login, and rp action
+                        // check the previous url if it contains the key, login, and action parameters
+                        $is_user_password_set_link = strpos($previous_url, 'key=') !== false && strpos($previous_url, 'login=') !== false && strpos($previous_url, 'action=rp') !== false;
+
+                        // if the previous url is a user password set link, then redirect to home page
+                        if ($is_user_password_set_link) {
+                            // set prev link to home page
+                            $previous_url = home_url();
+                        }
+
                         // redirect to the page, include the previous url as a query parameter
                         $login_page_link = get_permalink($login_page_id);
                         $login_page_link = add_query_arg('previous_url', urlencode($previous_url), $login_page_link);
