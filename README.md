@@ -12,6 +12,8 @@ This plugin is perfect if you want a robust user registration and login system w
 This plugin now offers anti-spam features, such as blacklisting usernames, blocklisting email domains, 
 whitelist email domains, and blocklisting signup from known disposable email domains.
 
+Login protection is also included, with user lock after a specific number of failed login attempts for a specific time.
+
 This plugin is well tested, and if you find any issues, please let us know.
 
 This plugin now offers override default WordPress login and registration pages, password reset and password change pages.
