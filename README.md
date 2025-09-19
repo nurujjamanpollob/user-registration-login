@@ -1,5 +1,6 @@
+# User Registration and Login Plugin
 
-WordPress' user registration and login plugin with reCaptcha and anti-spam features! <br>
+WordPress' user registration and login plugin with reCaptcha and anti-spam features!
 
 This plugin is a simple and easy to use plugin that allows you to add a user registration and login form to your website, 
 while provides security with Google reCaptcha, and anti-spam features.
@@ -19,25 +20,26 @@ to override the default WordPress login and registration pages, password reset a
 Check the settings for more details. With version 2.1.3 a new function been added to override the default woocommerce user login form, further raise security and prevent spam registrations.
 
 
-How to get started:
+## How to get started:
 1. Download the plugin zip file 'user-registration-login.zip'
 2. Go to your WordPress admin panel and upload the zip file
 3. Set up the plugin by entering your reCaptcha keys in the plugin settings
 
 That's it! You can now start using the plugin on your website.
 
-how to embed forms in your website:
+## How to embed forms in your website:
 1. Install the plugin
 2. Create a new page or post
 3. Add the shortcode any of them or together [register_form], [login_form], [password_recovery_form], [set_user_password_form] to the page or post
 4. Publish the page or post
 5. The form will now be displayed on your website
 
-Customization:
+## Customization:
 The plugin right now offers a few customizable options. 
 
 The list of customizable options includes:
 - reCaptcha keys
+- User Lock after specific number of failed login attempts for a specific time
 - New user default role
 - User creation email sent to the site admin
 - Load plugin CSS js for input fields styling
@@ -49,13 +51,13 @@ The list of customizable options includes:
 - Override default WordPress password recovery and password change pages
 - Override default WooCommerce user login form
 
-
 Note: if your theme has custom CSS for input fields, you can disable the plugin CSS and js for input fields styling, 
 in order to use your theme's CSS for input fields.
 
 If you like to style the form, you can use the plugin CSS classes to style the form.
 
-to customize the form, you can use the following CSS classes:
+## Customization CSS Classes:
+To customize the form, you can use the following CSS classes:
 - .input-container
 - input
 - .label
@@ -70,10 +72,9 @@ to customize the form, you can use the following CSS classes:
 - .minimal-material-dialog-dialog-button
 - .error
 
-
 More customization options will be added in future updates.
 
-Future updates:
+## Future updates:
 - Add more customization options
 - Add more form styles
 - visual form builder
