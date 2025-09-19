@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Drag and Drop Form Builder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            gap: 30px;
+            padding: 40px;
+        }
+        .toolbox, .form-area {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .toolbox {
+            min-width: 200px;
+        }
+        .toolbox h3 {
+            margin-top: 0;
+        }
+        .toolbox .tool {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #e3e3e3;
+            border-radius: 4px;
+            cursor: grab;
+            user-select: none;
+        }
+        .form-area {
+            flex: 1;
+            min-height: 400px;
+            border: 2px dashed #bbb;
+            position: relative;
+        }
+        .form-area.dragover {
+            border-color: #007bff;
+            background: #eaf6ff;
+        }
+        .form-element {
+            margin-bottom: 15px;
+        }
+        .form-element label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .remove-btn {
+            background: #ff4d4d;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 2px 8px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .editable-label {
+
+            background: #eaf6ff;
+            padding: 1px 3px;
+            cursor: text;
+            min-width: 40px;
+            display: inline-block;
+        }
+        .form-element.dragging {
+            opacity: 0.5;
+        }
+        .form-element.dragover {
+            border: 2px dashed #007bff;
+            background: #eaf6ff;
+        }
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+            .toolbox, .form-area {
+                width: 100%;
+                min-width: unset;
+                box-sizing: border-box;
+            }
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            .toolbox, .form-area {
+                padding: 10px;
+            }
+            #saveBtn {
+                width: 100%;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;margin-top:30px;margin-bottom:0;font-size:2.2em;">Drag and Drop Create New User Builder</h1>
+    <div class="container" id="mainContainer">
+        <div class="toolbox">
+            <h3>Toolbox</h3>
+            <div class="tool" draggable="true" data-type="first-name">First Name</div>
+            <div class="tool" draggable="true" data-type="last-name">Last Name</div>
+            <div class="tool" draggable="true" data-type="user-bio">User Bio</div>
+            <div class="tool" draggable="true" data-type="email">Email</div>
+            <div class="tool" draggable="true" data-type="password">Password</div>
+            <!--recaptcha v2 widget draggable-->
+            <div class="tool" draggable="true" data-type="recaptcha">reCAPTCHA v2</div>
+            <div class="tool" draggable="true" data-type="create_user">Create User</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:20px;">
+            <div class="form-area" id="formArea">
+                <p style="color:#aaa;text-align:center;">Drag form elements here</p>
+            </div>
+            <div style="padding-top:10px;">
+                <button id="saveBtn" style="padding:10px 20px;font-size:16px;">Save</button>
+                <button id="previewBtn" style="padding:10px 20px;font-size:16px;margin-left:10px;">Preview</button>
+                <div id="elementsList" style="margin-top:20px;"></div>
+            </div>
+        </div>
+        <div id="previewArea" style="min-width:320px;max-width:400px;width:100%;margin-left:30px;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);padding:20px;display:none;align-self:flex-start;"></div>
+    </div>
+    <script>
+        const toolbox = document.querySelector('.toolbox');
+        const formArea = document.getElementById('formArea');
+        let draggedType = null;
+
+        toolbox.addEventListener('dragstart', function(e) {
+            if (e.target.classList.contains('tool')) {
+                draggedType = e.target.getAttribute('data-type');
+            }
+        });
+
+        formArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            formArea.classList.add('dragover');
+        });
+
+        formArea.addEventListener('dragleave', function(e) {
+            formArea.classList.remove('dragover');
+        });
+
+        formArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            formArea.classList.remove('dragover');
+            if (draggedType) {
+                addElementToForm(draggedType);
+                draggedType = null;
+            }
+        });
+
+        function addElementToForm(type) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'form-element';
+            wrapper.setAttribute('draggable', 'true');
+
+            // Enable drag events for swapping
+            wrapper.addEventListener('dragstart', function(e) {
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', '');
+                formArea.draggedElement = wrapper;
+                setTimeout(() => wrapper.classList.add('dragging'), 0);
+            });
+            wrapper.addEventListener('dragend', function(e) {
+                wrapper.classList.remove('dragging');
+                formArea.draggedElement = null;
+                // Remove all dragover indicators
+                document.querySelectorAll('.form-element.dragover').forEach(el => el.classList.remove('dragover'));
+            });
+            wrapper.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            });
+            wrapper.addEventListener('drop', function(e) {
+                e.preventDefault();
+                const dragged = formArea.draggedElement;
+                if (dragged && dragged !== wrapper) {
+                    formArea.insertBefore(dragged, wrapper.nextSibling);
+                }
+            });
+            wrapper.addEventListener('dragenter', function(e) {
+                e.preventDefault();
+                wrapper.classList.add('dragover');
+            });
+            wrapper.addEventListener('dragleave', function(e) {
+                wrapper.classList.remove('dragover');
+            });
+
+            // Last Endpoint
+            let html = '';
+            switch(type) {
+               case 'first-name':
+                    html = '<label><span contenteditable="true" class="editable-label">First Name</span>: <input type="text" name="first_name" required disabled></label>';
+                    break;
+                case 'last-name':
+                    html = '<label><span contenteditable="true" class="editable-label">Last Name</span>: <input type="text" name="last_name" required disabled></label>';
+                    break;
+                case 'user-bio':
+                    html = '<label><span contenteditable="true" class="editable-label">User Bio</span>: <textarea name="user_bio" disabled></textarea></label>';
+                    break;
+                case 'email':
+                    html = '<label><span contenteditable="true" class="editable-label">Email</span>: <input type="email" name="email" required disabled></label>';
+                    break;
+                case 'password':
+                    html = '<label><span contenteditable="true" class="editable-label">Password</span>: <input type="password" name="password" required disabled></label>';
+                    break;
+                case 'recaptcha':
+                    html = '<label><span contenteditable="false" class="editable-label"></span> <div class="g-recaptcha" data-sitekey="6LfvclkpAAAAAE-FNPnjmlrGC0jFdxC73L0DIjiU" disabled></div></label>';
+                    // Load reCAPTCHA script dynamically
+                    if (!document.querySelector('.g-recaptcha')) {
+                        const script = document.createElement('script');
+                        script.src = 'https://www.google.com/recaptcha/api.js';
+                        document.head.appendChild(script);
+                    }
+                    break;
+                case 'create_user':
+                    html = '<button type="button" disabled>Create User</button>';
+                    break;
+            }
+            wrapper.innerHTML = html + '<button class="remove-btn" onclick="this.parentNode.remove()">Remove</button>';
+            formArea.appendChild(wrapper);
+        }
+
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            const elements = Array.from(document.querySelectorAll('.form-area .form-element'));
+            const listDiv = document.getElementById('elementsList');
+            if (elements.length === 0) {
+                listDiv.innerHTML = '<em>No elements in the form.</em>';
+                return;
+            }
+            let html = '<h4>List of Dragged Elements:</h4><ol>';
+            elements.forEach(el => {
+                let label = el.querySelector('label');
+                let btn = el.querySelector('button[type="button"]');
+                if (label) {
+                    html += `<li>${label.textContent.split(':')[0]}</li>`;
+                } else if (btn) {
+                    html += `<li>Button</li>`;
+                }
+            });
+            html += '</ol>';
+            listDiv.innerHTML = html;
+        });
+
+        document.getElementById('previewBtn').addEventListener('click', function() {
+            const previewArea = document.getElementById('previewArea');
+            const formElements = Array.from(document.querySelectorAll('.form-area .form-element'));
+            if (formElements.length === 0) {
+                previewArea.innerHTML = '<em>No elements to preview.</em>';
+                previewArea.style.display = 'block';
+                return;
+            }
+            let html = '<h4>Form Preview:</h4><form style="background:#fafafa;padding:20px;border-radius:8px;box-shadow:0 1px 4px #ccc;">';
+            formElements.forEach(el => {
+                let label = el.querySelector('label');
+                let btn = el.querySelector('button[type="button"]');
+                if (label) {
+                    html += `<div style='margin-bottom:15px;'>${label.outerHTML}</div>`;
+                } else if (btn) {
+                    html += `<div style='margin-bottom:15px;'>${btn.outerHTML}</div>`;
+                }
+            });
+            html += '</form>';
+            previewArea.innerHTML = html;
+            previewArea.style.display = 'block';
+            // Scroll to preview if on mobile
+            if (window.innerWidth < 900) previewArea.scrollIntoView({behavior: 'smooth'});
+        });
+    </script>
+</body>
+</html>

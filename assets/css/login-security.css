@@ -1,0 +1,38 @@
+/* Login Security Admin Styles */
+.locked-accounts-page .wrap {
+    max-width: 1200px;
+}
+
+.locked-accounts-page .wp-list-table thead th {
+    font-weight: bold;
+}
+
+.locked-accounts-page .unlock-account-btn {
+    background-color: #0073aa;
+    border-color: #0073aa;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.locked-accounts-page .unlock-account-btn:hover {
+    background-color: #005a87;
+    border-color: #005a87;
+}
+
+.locked-accounts-page .wp-list-table tbody tr:hover {
+    background-color: #f6f6f6;
+}
+
+.locked-accounts-page .tablenav.top,
+.locked-accounts-page .tablenav.bottom {
+    padding: 10px 0;
+}
+
+.locked-accounts-page .bulkactions select {
+    margin-right: 10px;
+    width: auto;
+}

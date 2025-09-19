@@ -1,0 +1,34 @@
+# Composer
+/vendor/
+/composer.lock
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local config
+wp-config.local.php
+config.php
+
+# Cache
+.cache/
+*.cache
+
+# Temporary files
+*.tmp
+*.temp
+
+# WordPress
+/wp-content/uploads/
+/wp-content/plugins/user-registration-login/assets/cache/
+
+# Development
+.env
+.env.local
