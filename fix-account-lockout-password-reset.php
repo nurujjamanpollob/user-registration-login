@@ -107,6 +107,3 @@ class UserRegistrationPasswordResetLockoutFix {
         }
     }
 }
-
-// Initialize the fix
-new UserRegistrationPasswordResetLockoutFix();

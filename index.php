@@ -27,6 +27,11 @@ if (!isset($login_security) || !is_object($login_security)) {
     $login_security = new LoginSecurity();
 }
 
+// initialize the account lockout password reset fix
+require_once plugin_dir_path(__FILE__) . 'fix-activation.php';
+require_once plugin_dir_path(__FILE__) . 'fix-account-lockout-password-reset.php';
+new UserRegistrationPasswordResetLockoutFix();
+
 // include the recaptcha verifier
 require_once plugin_dir_path(__FILE__) . 'verifier/recaptcha_verify.php';
 require_once plugin_dir_path(__FILE__) . 'utilities/link_direction_handler.php';

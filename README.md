@@ -17,7 +17,7 @@ This WordPress plugin allows you to show WordPress user registration form, login
 
 ## Performance Optimizations
 
-This plugin has been analyzed for performance bottlenecks. Key optimizations include:
+This plugin has been analyzed for performance bottlenecks, with latest 3.0 version, Key optimizations include:
 
 1. **Caching Implementation**: Uses WordPress transients to cache frequently accessed data
 2. **Database Query Optimization**: Reduces redundant database calls through caching
@@ -37,6 +37,7 @@ This plugin has been analyzed for performance bottlenecks. Key optimizations inc
 - `[register_form]` - Displays the registration form
 - `[login_form]` - Displays the login form
 - `[password_recovery_form]` - Displays the password recovery form
+- `[set_user_password_form]` - Displays set user password form
 
 ## Settings
 
@@ -73,10 +74,7 @@ A detailed performance analysis has been conducted on this plugin. Key findings 
 - Data pruning mechanisms to prevent unlimited growth
 - Algorithm optimization for faster lookups
 - Hash-based lookups for O(1) performance instead of O(n)
-
-For detailed performance analysis, see [PERFORMANCE_ANALYSIS.md](PERFORMANCE_ANALYSIS.md).
-
-For implemented optimizations, see [PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md).
+- Minimized redundant operations and improved code efficiency
 
 ## Requirements
 
@@ -86,7 +84,13 @@ For implemented optimizations, see [PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OP
 
 ## Changelog
 
-### 2.1.4
+### 3.0.0
+- Major performance optimizations
+- Caching implementation for configuration options
+- Improved database query efficiency
+- Enhanced disposable email domain handling
+- Memory management improvements
+- Algorithm optimizations for faster lookups
 - Performance improvements and optimizations
 - Security enhancements
 - Bug fixes
