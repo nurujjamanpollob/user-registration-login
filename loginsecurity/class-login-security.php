@@ -93,15 +93,15 @@ class LoginSecurity {
     public function init() {
         // Set default options if they don't exist
         if (!get_option(self::ATTEMPT_THRESHOLD_OPTION)) {
-            update_option(self::ATTEMPT_THRESHOLD_OPTION, self::DEFAULT_ATTEMPT_THRESHOLD);
+            update_option(self::ATTEMPT_THRESHOLD_OPTION, self::DEFAULT_ATTEMPT_THRESHOLD, true);
         }
         
         if (!get_option(self::TIME_WINDOW_OPTION)) {
-            update_option(self::TIME_WINDOW_OPTION, self::DEFAULT_TIME_WINDOW);
+            update_option(self::TIME_WINDOW_OPTION, self::DEFAULT_TIME_WINDOW, true);
         }
         
         if (!get_option(self::SECURITY_ENABLED_OPTION)) {
-            update_option(self::SECURITY_ENABLED_OPTION, self::DEFAULT_SECURITY_ENABLED);
+            update_option(self::SECURITY_ENABLED_OPTION, self::DEFAULT_SECURITY_ENABLED, true);
         }
     }
     
@@ -235,13 +235,16 @@ class LoginSecurity {
         }
         
         // Process bulk unlock
-        if (isset($_POST['unlock_accounts_bulk']) && !empty($_POST['locked_accounts'])) {
-            $accounts = $_POST['locked_accounts'];
-            foreach ($accounts as $username) {
-                $this->unlock_account($username);
-            }
-            echo '<div class="notice notice-success"><p>' . __('Selected accounts have been unlocked.', 'user-registration-login') . '</p></div>';
-        }
+	    if (isset($_POST['unlock_accounts_bulk']) && isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'unlock_accounts_bulk_action')) {
+		    if (!empty($_POST['locked_accounts'])) {
+			    $accounts = $_POST['locked_accounts'];
+			    foreach ($accounts as $username) {
+				    // Sanitize username before use
+				    $this->unlock_account(sanitize_text_field($username));
+			    }
+			    echo '<div class="notice notice-success"><p>' . __('Selected accounts have been unlocked.', 'user-registration-login') . '</p></div>';
+		    }
+	    }
         
         // Get locked accounts
         $locked_accounts = $this->get_cached_locked_accounts();
@@ -254,6 +257,7 @@ class LoginSecurity {
                 <p><?php _e('No accounts are currently locked.', 'user-registration-login'); ?></p>
             <?php else: ?>
                 <form method="post">
+	                <?php wp_nonce_field('unlock_accounts_bulk_action'); ?>
                     <input type="hidden" name="unlock_accounts_bulk" value="1" />
                     <div class="tablenav top">
                         <div class="alignleft actions bulkactions">

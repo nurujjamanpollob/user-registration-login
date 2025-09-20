@@ -1,34 +1,24 @@
-# Composer
-/vendor/
-/composer.lock
+# WordPress default .gitignore
+/.git
+/node_modules
+/.DS_Store
+Thumbs.db
+*.log
 
-# IDE
+# WordPress specific
+/wp-config.php
+/wp-content/uploads/
+/wp-content/cache/
+/wp-content/upgrade/
+
+# Plugin specific
+*.zip
+.env
+.DS_Store
 .idea/
 .vscode/
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# Local config
-wp-config.local.php
-config.php
-
-# Cache
-.cache/
-*.cache
-
-# Temporary files
-*.tmp
-*.temp
-
-# WordPress
-/wp-content/uploads/
-/wp-content/plugins/user-registration-login/assets/cache/
-
-# Development
-.env
-.env.local
+# IDE files
+*.swp
+*.swo
+*~
