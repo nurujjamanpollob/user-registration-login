@@ -1,47 +1,86 @@
-# User Registration & Login Plugin
+# User Registration and Login Plugin
 
-A WordPress plugin for user registration, login, and account security with lockout functionality.
+WordPress' user registration and login plugin with reCaptcha and anti-spam features!
 
-## Features
+This plugin is a simple and easy to use plugin that allows you to add a user registration and login form to your website, 
+while provides security with Google reCaptcha, and anti-spam features.
 
-- User registration form with email validation
-- Login form with reCAPTCHA support  
-- Account lockout mechanism for failed login attempts
-- Disposable email domain blocking
-- Whitelist/blacklist functionality for usernames and email domains
-- WooCommerce integration support
+The plugin is designed to be lightweight and no unnecessary features,
+and can be easily customized to fit your website's design. 
+This plugin is perfect if you want a robust user registration and login system without the bloat.
 
-## Security Audit
+This plugin now offers anti-spam features, such as blacklisting usernames, blocklisting email domains, 
+whitelist email domains, and blocklisting signup from known disposable email domains.
 
-This plugin has undergone a comprehensive security audit. Please review the detailed security report:
+Login protection is also included, with user lock after a specific number of failed login attempts for a specific time.
 
-[SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md)
+This plugin is well tested, and if you find any issues, please let us know.
 
-## Installation
+This plugin now offers override default WordPress login and registration pages, password reset and password change pages.
+You can use the same shortcode [register_form], [login_form], [password_recovery_form], and [set_user_password_form]
+to override the default WordPress login and registration pages, password reset and password change pages
+Check the settings for more details. With version 2.1.3 a new function been added to override the default woocommerce user login form, further raise security and prevent spam registrations.
 
-1. Upload the plugin files to the `/wp-content/plugins/user-registration-login` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Configure settings through the plugin menu in WordPress admin.
 
-## Usage
+## How to get started:
+1. Download the plugin zip file 'user-registration-login.zip'
+2. Go to your WordPress admin panel and upload the zip file
+3. Set up the plugin by entering your reCaptcha keys in the plugin settings
 
-Add shortcodes to pages:
-- `[register_form]` - Registration form
-- `[login_form]` - Login form
+That's it! You can now start using the plugin on your website.
 
-## Security Notes
+## How to embed forms in your website:
+1. Install the plugin
+2. Create a new page or post
+3. Add the shortcode any of them or together [register_form], [login_form], [password_recovery_form], [set_user_password_form] to the page or post
+4. Publish the page or post
+5. The form will now be displayed on your website
 
-?? **Critical Security Issues Identified**
+## Customization:
+The plugin right now offers a few customizable options. 
 
-This plugin contains several security vulnerabilities that require immediate attention before deployment:
+The list of customizable options includes:
+- reCaptcha keys
+- User Lock after specific number of failed login attempts for a specific time
+- New user default role
+- User creation email sent to the site admin
+- Load plugin CSS js for input fields styling
+- Blacklisting usernames
+- Blocklisting email domains
+- Blocklisting signup from known disposable email domains according to the list from this file `user-registration-login/assets/file/disposable_email_blocklist.conf`
+- Allow signup from specific email domains (Whitelist email domains)
+- Override default WordPress login and registration pages
+- Override default WordPress password recovery and password change pages
+- Override default WooCommerce user login form
 
-1. Account lockout bypass issues
-2. Inadequate CSRF protection in AJAX endpoints  
-3. Improper input sanitization
-4. Direct database access without validation
+Note: if your theme has custom CSS for input fields, you can disable the plugin CSS and js for input fields styling, 
+in order to use your theme's CSS for input fields.
 
-Please review the [SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md) for detailed vulnerability information and remediation steps.
+If you like to style the form, you can use the plugin CSS classes to style the form.
 
-## License
+## Customization CSS Classes:
+To customize the form, you can use the following CSS classes:
+- .input-container
+- input
+- .label
+- input, .label .text
+- input:focus
+- input:focus + .label .text
+- .label .text
+- input:focus + .label .text, :not(input[value=""]) + .label .text
+- input:focus + .label .text
+- .submit-button
+- .error_div
+- .minimal-material-dialog-dialog-button
+- .error
 
-This plugin is licensed under the GPL v2 or later.
+More customization options will be added in future updates.
+
+## Future updates:
+- Add more customization options
+- Add more form styles
+- visual form builder
+
+If you have any questions or need help with the plugin,
+please contact us at <a href="https://eazewebit.com">eazewebit.com</a>. 
+This plugin is optimized for the best performance and security, leaves minimal footprint on your website.
