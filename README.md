@@ -42,11 +42,6 @@ This plugin contains several security vulnerabilities that require immediate att
 
 Please review the [SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md) for detailed vulnerability information and remediation steps.
 
-## Changelog
-
-### 1.0.0
-- Initial release
-
 ## License
 
 This plugin is licensed under the GPL v2 or later.
